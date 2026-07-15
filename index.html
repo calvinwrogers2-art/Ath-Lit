@@ -277,6 +277,7 @@
   .overlay.show{opacity:1;pointer-events:auto}
   .modal{
     width:100%;max-width:400px;
+    max-height:92vh;overflow-y:auto;
     background:#FBF8F0;
     border:1px solid var(--hairline-2);border-radius:18px;
     padding:32px 26px 26px;text-align:center;
@@ -299,6 +300,13 @@
   .grid-str{
     font-size:22px;letter-spacing:4px;margin:16px 0 6px;
   }
+  .modal-poem{
+    font-family:'Caveat',cursive;font-weight:500;
+    font-size:19px;line-height:1.35;color:var(--ink-soft);
+    margin:12px 0 2px;padding:12px 0;
+    border-top:1px solid var(--hairline);border-bottom:1px solid var(--hairline);
+  }
+  .modal-poem .pl{display:block;padding:1.5px 0}
   .stats{display:flex;justify-content:center;gap:26px;margin:20px 0 24px}
   .stat b{display:block;font-size:28px;font-weight:900;font-stretch:115%;font-family:'Archivo';color:var(--ink)}
   .stat span{font-family:'Space Mono',monospace;font-size:9.5px;letter-spacing:0.14em;text-transform:uppercase;color:var(--faint)}
@@ -407,6 +415,7 @@
     <button class="modal-close" id="closeBtn" aria-label="Close">×</button>
     <div class="result-tag" id="resultTag">Solved</div>
     <div class="answer" id="answerName">—</div>
+    <div class="modal-poem" id="modalPoem"></div>
     <div class="grid-str" id="gridStr"></div>
     <div class="stats">
       <div class="stat"><b id="sPlayed">0</b><span id="lblPlayed">Played</span></div>
@@ -6908,7 +6917,7 @@ function submit(name){
 
   if(name===puzzle.answer){
     status="won"; solvedOn=guesses.length+1;
-    renderDots();
+    revealed=MAX; renderVerse(); renderDots();   // show the whole poem on a win
     finish();
     return;
   }
@@ -7095,6 +7104,8 @@ function showModal(s){
   const a=$("answerName");
   a.textContent=puzzle.answer;
   a.className="answer "+(won?"win":"lose");
+  $("modalPoem").innerHTML=puzzle.lines
+    .map(l=>'<span class="pl">'+l.replace(/&/g,'&amp;').replace(/</g,'&lt;')+'</span>').join('');
   $("gridStr").textContent=buildGrid();
   if(mode==="endless"){
     $("resultTag").textContent = won ? "Solved in "+solvedOn : "Run over";
@@ -7187,7 +7198,7 @@ async function initSport(s){
     const day=await loadDay();
     if(day && day.status && day.status!=="play"){
       guesses=day.guesses||[];status=day.status;solvedOn=day.solvedOn||0;
-      revealed = status==="won" ? Math.min(solvedOn,MAX) : MAX;
+      revealed = MAX;   // finished daily shows the complete poem
     }
   }
   const done=status!=="play";
