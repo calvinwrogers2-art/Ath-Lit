@@ -328,6 +328,23 @@
   }
   .flash.show{opacity:1;transform:translate(-50%,0) rotate(-2deg)}
 
+  /* closable results + completed-daily state */
+  .modal{position:relative}
+  .modal-close{
+    position:absolute;top:8px;right:12px;
+    background:none;border:none;cursor:pointer;
+    font-family:'Archivo',sans-serif;font-size:26px;line-height:1;
+    color:var(--faint);padding:4px 8px;border-radius:8px;
+    transition:color .15s,background .15s;
+  }
+  .modal-close:hover{color:var(--ink);background:rgba(38,34,27,0.06)}
+  .modal-close:focus-visible{outline:2px solid var(--flare);outline-offset:2px}
+  .daily-done{display:flex;flex-direction:column;align-items:center;gap:13px;text-align:center;padding:4px 0 2px}
+  .done-note{font-family:'Space Mono',monospace;font-size:12.5px;letter-spacing:0.04em;color:var(--faint);line-height:1.5}
+  .done-note b{color:var(--win);font-weight:700}
+  .btn.ghost{background:transparent;border:1.5px solid var(--hairline-2);color:var(--ink)}
+  .btn.ghost:hover{background:var(--ink);color:var(--paper);border-color:var(--ink)}
+
   @media (prefers-reduced-motion: reduce){
     .line.reveal{animation:none}
     .overlay,.modal,.mode,.dot,.flash{transition:none}
@@ -366,11 +383,15 @@
 
   <div class="searchbox">
     <div class="suggest" id="suggest" style="display:none"></div>
-    <div class="row">
+    <div class="row" id="playRow">
       <input type="text" id="input" autocomplete="off" spellcheck="false" placeholder="Name the player…">
       <button class="btn" id="guessBtn">Guess</button>
     </div>
     <div class="hint" id="hint"></div>
+    <div class="daily-done" id="dailyDone" style="display:none">
+      <div class="done-note" id="doneNote"></div>
+      <button class="btn ghost" id="viewResultBtn">View result</button>
+    </div>
   </div>
 
   <footer>
@@ -383,6 +404,7 @@
 
 <div class="overlay" id="overlay">
   <div class="modal">
+    <button class="modal-close" id="closeBtn" aria-label="Close">×</button>
     <div class="result-tag" id="resultTag">Solved</div>
     <div class="answer" id="answerName">—</div>
     <div class="grid-str" id="gridStr"></div>
@@ -7005,7 +7027,7 @@ function setPuzzle(p){
   revealed=1; guesses=[]; status="play"; solvedOn=0;
   input.disabled=false; guessBtn.disabled=false; input.value=""; hint.textContent="";
   overlay.classList.remove("show");
-  renderVerse(); renderDots(); renderGuesses(); setMeta();
+  renderVerse(); renderDots(); renderGuesses(); setMeta(); applyDoneUI();
 }
 async function enterEndless(){
   if(mode==="endless")return;
@@ -7028,7 +7050,7 @@ function enterDaily(){
   const done=status!=="play";
   input.disabled=done; guessBtn.disabled=done; input.value=""; hint.textContent="";
   renderVerse(); renderDots(); renderGuesses(); setMeta();
-  if(done) finish(false);
+  applyDoneUI();
 }
 $("modeDaily").onclick=enterDaily;
 $("modeEndless").onclick=enterEndless;
@@ -7089,6 +7111,7 @@ function showModal(s){
   }
   overlay.classList.add("show");
   input.disabled=true;guessBtn.disabled=true;
+  applyDoneUI();
 }
 
 $("shareBtn").onclick=async()=>{
@@ -7105,6 +7128,30 @@ $("shareBtn").onclick=async()=>{
   }
   setTimeout(()=>$("shareBtn").textContent="Share the verse",1600);
 };
+
+/* completed-daily board state (locked, no retry) + closable modal */
+function applyDoneUI(){
+  const done = (mode==="daily" && status!=="play");
+  const row=$("playRow"); if(row) row.style.display = done ? "none" : "flex";
+  $("hint").style.display = done ? "none" : "";
+  const dd=$("dailyDone"); if(dd) dd.style.display = done ? "flex" : "none";
+  if(done){
+    $("doneNote").innerHTML = status==="won"
+      ? "<b>Solved</b> today’s verse in "+solvedOn+"/"+MAX+". Come back tomorrow."
+      : "Today’s verse won this round — come back tomorrow.";
+  }
+}
+function closeModal(){
+  overlay.classList.remove("show");
+  if(mode==="endless" && status!=="play"){
+    setPuzzle(currentEndlessPuzzle());   // dismissing a finished run deals the next verse
+  }else{
+    applyDoneUI();                        // reveal the completed (locked) daily board
+  }
+}
+$("closeBtn").onclick=closeModal;
+overlay.addEventListener("click",e=>{ if(e.target===overlay) closeModal(); });
+$("viewResultBtn").onclick=async()=>{ const s=await loadStats(); showModal(s); };
 
 /* ---------------- countdown (to midnight America/New_York) ---------------- */
 function tick(){
@@ -7146,7 +7193,7 @@ async function initSport(s){
   const done=status!=="play";
   input.disabled=done;guessBtn.disabled=done;input.value="";hint.textContent="";
   renderVerse();renderDots();renderGuesses();setMeta();
-  if(done) finish(false);
+  applyDoneUI();
 }
 function switchSport(s){
   if(s===sport)return;
