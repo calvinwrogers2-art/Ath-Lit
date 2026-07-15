@@ -1,0 +1,3325 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AthLit — a daily basketball verse</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:ital,wdth,wght@0,62..125,100..900&family=Caveat:wght@400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --paper:     #F4F0E5;
+    --paper-2:   #ECE6D5;
+    --ink:       #26221B;
+    --ink-soft:  #3A342A;
+    --faint:     rgba(38,34,27,0.55);
+    --fainter:   rgba(38,34,27,0.38);
+    --hairline:  rgba(38,34,27,0.10);
+    --hairline-2:rgba(38,34,27,0.20);
+    --flare:     #D9531E;
+    --flare-dk:  #BC4415;
+    --win:       #2F7D52;
+    --miss:      #C4392F;
+    --radius:    16px;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{height:100%}
+  body{
+    font-family:'Archivo',system-ui,sans-serif;
+    color:var(--ink);
+    background:
+      radial-gradient(120% 80% at 50% -10%, rgba(217,83,30,0.05), transparent 55%),
+      linear-gradient(180deg, var(--paper), var(--paper-2));
+    min-height:100%;
+    display:flex;
+    justify-content:center;
+    padding:30px 18px 44px;
+  }
+  /* paper fiber grain */
+  body::after{
+    content:"";position:fixed;inset:0;z-index:0;pointer-events:none;
+    opacity:0.55;mix-blend-mode:multiply;
+    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='240' height='240'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0.55 0 0 0 0 0.52 0 0 0 0 0.45 0 0 0 0.05 0'/%3E%3C/filter%3E%3Crect width='240' height='240' filter='url(%23n)'/%3E%3C/svg%3E");
+  }
+  .court-lines{position:fixed;inset:0;z-index:0;pointer-events:none}
+  .wrap{width:100%;max-width:520px;position:relative;z-index:1}
+
+  /* ---------- masthead ---------- */
+  header{text-align:center;margin-bottom:22px}
+  .wordmark{
+    display:inline-flex;align-items:baseline;gap:2px;
+    line-height:1;user-select:none;
+  }
+  .wordmark .wm-a{
+    font-weight:900;font-stretch:125%;
+    font-size:clamp(34px,9vw,50px);
+    letter-spacing:0.04em;
+    color:var(--ink);
+  }
+  .wordmark .wm-dot{
+    width:0.22em;height:0.22em;border-radius:50%;
+    background:var(--flare);
+    font-size:clamp(34px,9vw,50px);
+    transform:translateY(-0.05em);
+    margin:0 0.12em;
+  }
+  .wordmark .wm-l{
+    font-family:'Caveat',cursive;
+    font-weight:700;
+    font-size:clamp(46px,12vw,66px);
+    color:var(--ink);
+    transform:rotate(-3deg) translateY(0.04em);
+    display:inline-block;
+  }
+  .tagline{
+    margin-top:10px;
+    font-family:'Space Mono',monospace;
+    font-size:10.5px;
+    letter-spacing:0.3em;
+    text-transform:uppercase;
+    color:var(--faint);
+  }
+  .meta{
+    margin-top:18px;
+    padding:9px 0;
+    border-top:1px solid var(--hairline-2);
+    border-bottom:1px solid var(--hairline);
+    font-family:'Space Mono',monospace;
+    font-size:11.5px;
+    letter-spacing:0.2em;
+    text-transform:uppercase;
+    color:var(--faint);
+  }
+  .meta b{color:var(--flare);font-weight:700}
+
+  .modes{
+    display:inline-flex;margin-top:16px;
+    border:1px solid var(--hairline-2);border-radius:999px;padding:3px;gap:2px;
+    background:rgba(255,255,255,0.35);
+  }
+  .mode{
+    font-family:'Space Mono',monospace;font-size:10px;letter-spacing:0.18em;text-transform:uppercase;
+    padding:8px 18px;border-radius:999px;border:none;
+    background:transparent;color:var(--faint);cursor:pointer;
+    transition:background .18s,color .18s;
+  }
+  .mode.on{background:var(--ink);color:var(--paper);font-weight:700}
+  .mode:focus-visible{outline:2px solid var(--flare);outline-offset:2px}
+
+  .diffpill{
+    display:inline-flex;align-items:center;gap:8px;margin-top:14px;
+    padding:6px 14px;border-radius:999px;
+    font-family:'Space Mono',monospace;font-size:10px;letter-spacing:0.22em;text-transform:uppercase;
+    border:1px solid var(--hairline-2);color:var(--faint);
+    background:rgba(255,255,255,0.35);
+  }
+  .diffpill .beans{display:flex;gap:3px}
+  .diffpill .bean{width:6px;height:6px;border-radius:50%;background:var(--hairline-2)}
+  .diffpill .bean.on{background:var(--flare)}
+
+  /* ---------- the verse: ink on the page ---------- */
+  .page{
+    position:relative;
+    background:transparent;
+    border:none;
+    border-radius:0;
+    padding:10px 0 14px;
+    margin-bottom:14px;
+  }
+  .verse{display:flex;flex-direction:column;counter-reset:line}
+  .line{
+    counter-increment:line;
+    font-family:'Caveat',cursive;
+    font-weight:500;
+    color:var(--ink-soft);
+    font-size:clamp(23px,6.4vw,29px);
+    line-height:1.3;
+    padding:12px 4px 11px 58px;
+    min-height:2.5em;
+    display:flex;
+    align-items:center;
+    position:relative;
+  }
+  .line:nth-child(even){padding-left:80px}
+  /* big handwritten margin numerals */
+  .line::before{
+    content:counter(line);
+    position:absolute;left:6px;top:50%;transform:translateY(-54%) rotate(-4deg);
+    font-family:'Caveat',cursive;font-weight:700;
+    font-size:54px;line-height:1;
+    color:rgba(38,34,27,0.12);
+    pointer-events:none;
+  }
+  .line:nth-child(even)::before{transform:translateY(-54%) rotate(3deg)}
+  /* the clue you're on — circled in orange ink, so to speak */
+  .line:not(.locked):has(+ .line.locked)::before,
+  .verse .line:not(.locked):last-child::before{
+    color:rgba(217,83,30,0.70);
+  }
+  /* unrevealed = pencil scribble */
+  .line.locked{color:transparent;user-select:none}
+  .line.locked::after{
+    content:"";position:absolute;left:58px;top:50%;
+    height:14px;transform:translateY(-50%);
+    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='28' height='14' viewBox='0 0 28 14'%3E%3Cpath d='M0 8 Q 3.5 2 7 8 T 14 7 Q 17.5 12 21 7 T 28 8' fill='none' stroke='rgba(38,34,27,0.30)' stroke-width='1.6' stroke-linecap='round'/%3E%3C/svg%3E");
+    background-repeat:repeat-x;background-size:28px 14px;
+    width:70%;
+  }
+  .line.locked:nth-child(even)::after{left:80px}
+  .line.locked:nth-child(2)::after{width:60%}
+  .line.locked:nth-child(3)::after{width:74%}
+  .line.locked:nth-child(4)::after{width:54%}
+  .line.locked:nth-child(5)::after{width:66%}
+  .line.reveal{animation:ink .55s cubic-bezier(.2,.7,.3,1) both}
+  @keyframes ink{
+    from{opacity:0;transform:translateX(-8px);filter:blur(4px)}
+    to  {opacity:1;transform:none;filter:none}
+  }
+
+  /* ---------- guess tallies: hand-drawn strokes ---------- */
+  .dots{display:flex;gap:9px;justify-content:center;margin:4px 0 16px}
+  .dot{
+    width:20px;height:5px;border-radius:3px;
+    background:var(--hairline-2);border:none;
+    transition:background .2s;
+  }
+  .dot:nth-child(odd){transform:rotate(-3deg)}
+  .dot:nth-child(even){transform:rotate(2.5deg)}
+  .dot.miss{background:var(--miss)}
+  .dot.made{background:var(--win)}
+
+  /* ---------- crossed-out guesses ---------- */
+  .guesses{display:flex;flex-wrap:wrap;gap:4px 14px;justify-content:center;margin-bottom:14px;min-height:2px}
+  .chip{
+    font-family:'Caveat',cursive;
+    font-size:21px;font-weight:500;
+    padding:0 2px;border:none;background:transparent;
+    color:var(--faint);
+    text-decoration:line-through;
+    text-decoration-color:var(--miss);
+    text-decoration-thickness:2px;
+  }
+  .chip:nth-child(odd){transform:rotate(-1.5deg)}
+  .chip:nth-child(even){transform:rotate(1.2deg)}
+
+  /* ---------- input: write on the line ---------- */
+  .searchbox{position:relative}
+  .row{display:flex;gap:12px;align-items:flex-end}
+  input[type=text]{
+    flex:1;min-width:0;
+    font-family:'Caveat',cursive;font-size:24px;font-weight:500;
+    padding:6px 4px 8px;border-radius:0;
+    background:transparent;
+    border:none;
+    border-bottom:2px solid var(--hairline-2);
+    color:var(--ink);
+    outline:none;
+    transition:border-color .15s;
+  }
+  input[type=text]:focus{border-bottom-color:var(--flare)}
+  input::placeholder{color:var(--fainter)}
+  .btn{
+    font-family:'Archivo',sans-serif;font-weight:800;font-stretch:115%;font-size:13px;
+    letter-spacing:0.08em;text-transform:uppercase;
+    padding:13px 20px;border:none;border-radius:12px;cursor:pointer;
+    background:var(--ink);color:var(--paper);
+    transition:background .15s, transform .05s;
+  }
+  .btn:hover{background:var(--flare)}
+  .btn:active{transform:translateY(1px)}
+  .btn:disabled{opacity:0.35;cursor:not-allowed}
+  .btn:focus-visible{outline:2px solid var(--flare);outline-offset:2px}
+  .hint{
+    min-height:18px;margin-top:10px;
+    font-family:'Space Mono',monospace;font-size:12px;letter-spacing:0.04em;
+    color:var(--miss);text-align:center;
+  }
+  .suggest{
+    position:absolute;left:0;right:0;bottom:calc(100% + 10px);
+    background:#FBF8F0;border:1px solid var(--hairline-2);
+    border-radius:12px;overflow:hidden;z-index:20;
+    box-shadow:0 -14px 40px -12px rgba(60,50,30,0.35);
+  }
+  .suggest div{
+    padding:12px 16px;font-size:14px;font-weight:600;cursor:pointer;
+    border-bottom:1px solid var(--hairline);
+    color:var(--ink-soft);
+    transition:background .12s;
+  }
+  .suggest div:last-child{border-bottom:none}
+  .suggest div:hover,.suggest div.active{background:rgba(217,83,30,0.12)}
+
+  /* ---------- footer ---------- */
+  footer{
+    margin-top:28px;text-align:center;
+    font-family:'Space Mono',monospace;font-size:10.5px;letter-spacing:0.1em;
+    color:var(--fainter);line-height:1.8;
+  }
+
+  /* ---------- modal: a card clipped to the page ---------- */
+  .overlay{
+    position:fixed;inset:0;background:rgba(90,78,55,0.30);
+    backdrop-filter:blur(7px);-webkit-backdrop-filter:blur(7px);
+    display:flex;align-items:center;justify-content:center;padding:20px;z-index:50;
+    opacity:0;pointer-events:none;transition:opacity .25s;
+  }
+  .overlay.show{opacity:1;pointer-events:auto}
+  .modal{
+    width:100%;max-width:400px;
+    background:#FBF8F0;
+    border:1px solid var(--hairline-2);border-radius:18px;
+    padding:32px 26px 26px;text-align:center;
+    box-shadow:0 30px 70px -25px rgba(60,50,30,0.5);
+    transform:translateY(14px);transition:transform .25s;
+  }
+  .overlay.show .modal{transform:none}
+  .result-tag{
+    font-family:'Space Mono',monospace;font-size:11px;letter-spacing:0.26em;
+    text-transform:uppercase;color:var(--faint);margin-bottom:8px;
+  }
+  .answer{
+    font-family:'Caveat',cursive;font-weight:700;
+    font-size:46px;
+    color:var(--ink);line-height:1.05;margin-bottom:2px;
+    transform:rotate(-1.5deg);
+  }
+  .answer.win{color:var(--win)}
+  .answer.lose{color:var(--flare)}
+  .grid-str{
+    font-size:22px;letter-spacing:4px;margin:16px 0 6px;
+  }
+  .stats{display:flex;justify-content:center;gap:26px;margin:20px 0 24px}
+  .stat b{display:block;font-size:28px;font-weight:900;font-stretch:115%;font-family:'Archivo';color:var(--ink)}
+  .stat span{font-family:'Space Mono',monospace;font-size:9.5px;letter-spacing:0.14em;text-transform:uppercase;color:var(--faint)}
+  .share-btn{width:100%;padding:16px;font-size:14px}
+  #nextBtn{margin-top:10px;background:transparent;border:1.5px solid var(--hairline-2);color:var(--ink)}
+  #nextBtn:hover{background:var(--ink);color:var(--paper);border-color:var(--ink)}
+  .next{margin-top:15px;font-family:'Space Mono',monospace;font-size:11px;letter-spacing:0.1em;color:var(--faint)}
+
+  /* endless quick-win flash */
+  .flash{
+    position:fixed;left:50%;top:26%;z-index:40;
+    transform:translate(-50%,-6px) rotate(-2deg);
+    background:#FBF8F0;border:1px solid var(--hairline-2);border-radius:14px;
+    box-shadow:0 18px 50px -18px rgba(60,50,30,0.5);
+    padding:14px 22px;
+    font-family:'Caveat',cursive;font-weight:700;font-size:28px;
+    color:var(--win);text-align:center;line-height:1.15;
+    opacity:0;pointer-events:none;
+    transition:opacity .25s, transform .25s;
+  }
+  .flash em{font-style:normal;color:var(--flare);margin-left:4px}
+  .flash span{
+    display:block;
+    font-family:'Space Mono',monospace;font-weight:400;
+    font-size:10px;letter-spacing:0.22em;text-transform:uppercase;
+    color:var(--faint);margin-top:4px;
+  }
+  .flash.show{opacity:1;transform:translate(-50%,0) rotate(-2deg)}
+
+  @media (prefers-reduced-motion: reduce){
+    .line.reveal{animation:none}
+    .overlay,.modal,.mode,.dot,.flash{transition:none}
+  }
+</style>
+</head>
+<body>
+<svg class="court-lines" viewBox="0 0 800 900" preserveAspectRatio="xMidYMin slice" aria-hidden="true">
+  <circle cx="400" cy="-210" r="580" fill="none" stroke="rgba(38,34,27,0.07)" stroke-width="1.5" stroke-dasharray="1 0"/>
+  <circle cx="400" cy="-210" r="380" fill="none" stroke="rgba(38,34,27,0.05)" stroke-width="1"/>
+  <circle cx="400" cy="-210" r="180" fill="none" stroke="rgba(217,83,30,0.12)" stroke-width="1"/>
+</svg>
+<div class="wrap">
+  <header>
+    <div class="wordmark"><span class="wm-a">ATH</span><span class="wm-dot" aria-hidden="true"></span><span class="wm-l">LIT</span></div>
+    <div class="tagline">a poem hides a player — name them</div>
+    <div class="modes">
+      <button class="mode on" id="modeDaily">Daily</button>
+      <button class="mode" id="modeEndless">Endless ∞</button>
+    </div>
+    <div class="meta" id="metaLine">No. <b>—</b></div>
+    <div class="diffpill" id="diffPill" style="display:none"></div>
+  </header>
+
+  <div class="page">
+    <div class="verse" id="verse"></div>
+  </div>
+
+  <div class="dots" id="dots"></div>
+  <div class="guesses" id="guesses"></div>
+
+  <div class="searchbox">
+    <div class="suggest" id="suggest" style="display:none"></div>
+    <div class="row">
+      <input type="text" id="input" autocomplete="off" spellcheck="false" placeholder="Name the player…">
+      <button class="btn" id="guessBtn">Guess</button>
+    </div>
+    <div class="hint" id="hint"></div>
+  </div>
+
+  <footer>
+    AthLit is an unofficial fan game — not affiliated with the NBA or any team.<br>
+    Daily verse + Endless mode · prototype build
+  </footer>
+</div>
+
+<div class="flash" id="flash" aria-live="polite"></div>
+
+<div class="overlay" id="overlay">
+  <div class="modal">
+    <div class="result-tag" id="resultTag">Solved</div>
+    <div class="answer" id="answerName">—</div>
+    <div class="grid-str" id="gridStr"></div>
+    <div class="stats">
+      <div class="stat"><b id="sPlayed">0</b><span id="lblPlayed">Played</span></div>
+      <div class="stat"><b id="sWin">0</b><span id="lblWin">Win %</span></div>
+      <div class="stat"><b id="sStreak">0</b><span id="lblStreak">Streak</span></div>
+    </div>
+    <button class="btn share-btn" id="shareBtn">Share the verse</button>
+    <button class="btn share-btn" id="nextBtn" style="display:none">Next verse →</button>
+    <div class="next" id="nextNote">Next verse in <span id="countdown">—</span></div>
+  </div>
+</div>
+
+<script>
+/* ---------------- storage: use the browser's localStorage on the web ---------------- */
+if(!window.storage){
+  window.storage={
+    async get(k){const v=localStorage.getItem(k);return v===null?null:{key:k,value:v};},
+    async set(k,v){localStorage.setItem(k,v);return{key:k,value:v};}
+  };
+}
+
+/* ---------------- player roster (for autocomplete) ---------------- */
+const ROSTER = ["Michael Jordan","LeBron James","Kobe Bryant","Shaquille O'Neal","Stephen Curry","Magic Johnson","Larry Bird","Wilt Chamberlain","Kareem Abdul-Jabbar","Bill Russell","Tim Duncan","Kevin Durant","Giannis Antetokounmpo","Nikola Jokić","Luka Dončić","Allen Iverson","Dwyane Wade","Dirk Nowitzki","Charles Barkley","Hakeem Olajuwon","Kevin Garnett","Scottie Pippen","Dennis Rodman","Isiah Thomas","Julius Erving","Oscar Robertson","Jerry West","Elgin Baylor","David Robinson","Karl Malone","John Stockton","Patrick Ewing","Vince Carter","Tracy McGrady","Paul Pierce","Ray Allen","Reggie Miller","Steve Nash","Chris Paul","James Harden","Russell Westbrook","Damian Lillard","Kyrie Irving","Kawhi Leonard","Anthony Davis","Dwight Howard","Carmelo Anthony","Yao Ming","Manu Ginóbili","Tony Parker","Klay Thompson","Draymond Green","Jayson Tatum","Jaylen Brown","Joel Embiid","Jimmy Butler","Donovan Mitchell","Devin Booker","Ja Morant","Anthony Edwards","Victor Wembanyama","Zion Williamson","LaMelo Ball","Trae Young","De'Aaron Fox","Tyrese Haliburton","Paolo Banchero","Chet Holmgren","Shai Gilgeous-Alexander","Karl-Anthony Towns","Rudy Gobert","Domantas Sabonis","Bam Adebayo","Pascal Siakam","DeMar DeRozan","Brandon Ingram","Jrue Holiday","Kristaps Porziņģis","Brook Lopez","CJ McCollum","Bradley Beal","Zach LaVine","Julius Randle","Ben Simmons","Andrew Wiggins","Al Horford","Gordon Hayward","Derrick Rose","Blake Griffin","DeAndre Jordan","Rajon Rondo","Kevin Love","Kyle Lowry","Pau Gasol","Marc Gasol","Peja Stojaković","Chris Bosh","Amar'e Stoudemire","Gilbert Arenas","Baron Davis","Chauncey Billups","Rip Hamilton","Rasheed Wallace","Ben Wallace","Jason Kidd","Jason Terry","Shawn Marion","Steve Francis","Penny Hardaway","Grant Hill","Alonzo Mourning","Dikembe Mutombo","Latrell Sprewell","Chris Webber","Juwan Howard","Glenn Robinson","Allan Houston","Mitch Richmond","Mark Price","Dell Curry","Shawn Kemp","Gary Payton","Detlef Schrempf","Tom Chambers","Kevin Johnson","Dan Majerle","Larry Johnson","Muggsy Bogues","Spud Webb","Dominique Wilkins","Joe Dumars","Clyde Drexler","Moses Malone","George Gervin","Bob McAdoo","Pete Maravich","Walt Frazier","Willis Reed","Dave Cowens","Rick Barry","Bob Cousy","Nate Archibald","Adrian Dantley","Alex English","Bernard King","James Worthy","Robert Parish","Kevin McHale","Dennis Johnson","Sam Jones","Bob Lanier","Nate Thurmond","Wes Unseld","Elvin Hayes","Artis Gilmore","Connie Hawkins","Bob Pettit","Dolph Schayes","Lenny Wilkens","Dave Bing","Earl Monroe","Gail Goodrich","Bill Walton","Jack Sikma","Sidney Moncrief","Kevin Willis","Horace Grant","AC Green","Cedric Ceballos","Michael Finley","Antawn Jamison","Mike Bibby","Richard Jefferson","Jason Richardson","Michael Redd","Andre Iguodala","Joe Johnson","Luol Deng","Joakim Noah","Tyson Chandler","Monta Ellis","David Lee","Deron Williams","Brandon Roy","Rudy Gay","O.J. Mayo","Eric Gordon","Kemba Walker","Isaiah Thomas","Victor Oladipo","DeMarcus Cousins","John Wall","Paul George","Khris Middleton","Nikola Vučević","Mike Conley","Goran Dragić","Ricky Rubio","Serge Ibaka","Steven Adams","Jamal Crawford","Lou Williams","Jamal Murray","Aaron Gordon","Michael Porter Jr.","OG Anunoby","Mikal Bridges","Miles Bridges","Jalen Brunson","Tyrese Maxey","Desmond Bane","Austin Reaves","Alex Caruso","Josh Hart","Fred VanVleet","Scottie Barnes","Evan Mobley","Jarrett Allen","Darius Garland","Cade Cunningham","Jalen Green","Jabari Smith Jr.","Amen Thompson","Ausar Thompson","Franz Wagner","Moritz Wagner","Jalen Williams","Brandon Miller","Scoot Henderson","Devin Vassell","Jaren Jackson Jr.","Walker Kessler","Keyonte George","Immanuel Quickley","RJ Barrett","Jakob Poeltl","Terry Rozier","Malcolm Brogdon","Buddy Hield","Bojan Bogdanović","Bogdan Bogdanović","Harrison Barnes","Clint Capela","Myles Turner","Anfernee Simons","D'Angelo Russell","Lonzo Ball","Josh Giddey","Jonathan Kuminga","Andrew Nembhard","Herb Jones","Trey Murphy III","Derrick White","Payton Pritchard","Naz Reid","Cam Thomas","Mark Williams","Keldon Johnson","Keegan Murray","Bennedict Mathurin","Obi Toppin","Jalen Suggs","Cole Anthony","Wendell Carter Jr.","Kyle Kuzma","Jordan Clarkson","Donte DiVincenzo","Christian Braun","Bruce Brown","Marcus Smart","Robert Williams III","Patrick Beverley","Kelly Oubre Jr.","Norman Powell","PJ Washington","Dereck Lively II","Cam Whitmore","Dalton Knecht","Reed Sheppard","Ron Holland","Zach Edey","Donovan Clingan","Rob Dillingham","Stephon Castle","Cooper Flagg","Ace Bailey","Dylan Harper","Dylan Windler","Bol Bol","Tacko Fall","Boban Marjanović","Jeremy Lin","Jimmer Fredette","Brian Scalabrine","Udonis Haslem","JJ Redick","Jamal Mashburn","Chris Mullin","Alperen Şengün","Tyler Herro","Lauri Markkanen","Deandre Ayton","Jordan Poole","Collin Sexton","John Collins","Malik Monk","Kevin Huerter","Coby White","Ayo Dosunmu","Patrick Williams","Max Strus","Sam Hauser","Nic Claxton","Cam Johnson","Dennis Schröder","Jaden Ivey","Jalen Duren","Isaiah Stewart","Malik Beasley","Aaron Nesmith","TJ McConnell","Duncan Robinson","Jaime Jaquez Jr.","Nikola Jović","Kel'el Ware","Bobby Portis","Pat Connaughton","Gary Trent Jr.","Jaden McDaniels","Nickeil Alexander-Walker","Jose Alvarado","Jonas Valančiūnas","Mitchell Robinson","Miles McBride","Precious Achiuwa","Luguentz Dort","Isaiah Hartenstein","Cason Wallace","Aaron Wiggins","Isaiah Joe","Jeremy Sochan","Gradey Dick","Ochai Agbaji","Taylor Hendricks","Brice Sensabaugh","Grayson Allen","Royce O'Neale","Jusuf Nurkić","Shaedon Sharpe","Deni Avdija","Toumani Camara","Jerami Grant","Matisse Thybulle","Jaxson Hayes","Rui Hachimura","Bronny James","Jarred Vanderbilt","Gabe Vincent","Daniel Gafford","Spencer Dinwiddie","Dwight Powell","GG Jackson","Brandon Clarke","Santi Aldama","Luke Kennard","Scotty Pippen Jr.","Kevon Looney","Moses Moody","Brandin Podziemski","Trayce Jackson-Davis","Gary Payton II","De'Anthony Melton","Ivica Zubac","Terance Mann","Derrick Jones Jr.","Kris Dunn","Mo Bamba","Mason Plumlee","Tre Jones","Tyus Jones","Kyle Filipowski","Isaiah Collier","Bilal Coulibaly","Alex Sarr","Bub Carrington","Corey Kispert","Jalen Johnson","Dyson Daniels","Onyeka Okongwu","De'Andre Hunter","Zaccharie Risacher","Nick Richards","Grant Williams","Tre Mann","Josh Green","Anthony Black","Goga Bitadze","Jonathan Isaac","Kentavious Caldwell-Pope","Gary Harris","Jared McCain","Andre Drummond","Guerschon Yabusele","Tobias Harris","Paul Reed","Jarace Walker","Isaiah Jackson","AJ Green","Taurean Prince","Noah Clowney","Egor Demin","Danny Wolf","Chris Boucher","Kasparas Jakučionis","VJ Edgecombe","Tre Johnson","Khaman Maluach","Kon Knueppel","Jeremiah Fears","Derik Queen","Jaylen Wells","Yves Missi","Quentin Grimes","Keon Ellis","Peyton Watson"];
+const PLAYERS = [...new Set(ROSTER)];
+
+/* ---------------- puzzle bank (original verses) ----------------
+   5 lines each, escalating from cryptic to near-giveaway.        */
+const PUZZLES = [
+  {answer:"Michael Jordan", d:1, lines:[
+    "Cut from a team in youth, or so the legend swore,",
+    "a tongue would loll midair as gravity was ignored,",
+    "a baseball season stolen, then the fadeaway restored,",
+    "in scarlet, black and Bulls he built a dynasty's core,",
+    "six titles, and a jumping logo every kid still wore."]},
+  {answer:"LeBron James", d:1, lines:[
+    "A schoolboy on the cover, a kingdom's weight to bear,",
+    "he took his gifts down to the coast and lit a summer's glare,",
+    "a chase-down block, a fistful of chalk thrown in the air,",
+    "from Ohio soil to gold, three crowns in different lair,",
+    "the all-time scoring king who reigns beyond compare."]},
+  {answer:"Stephen Curry", d:1, lines:[
+    "Twice overlooked for size, a guard they deemed too slight,",
+    "he pulled up from the logo and redrew what counted right,",
+    "a mouthguard chewed, a shimmy underneath the light,",
+    "beside the Bay he splashed a dynasty of downtown flight,",
+    "the greatest shooter ever, raining threes all night."]},
+  {answer:"Shaquille O'Neal", d:1, lines:[
+    "A mountain in the paint no double-team could slow,",
+    "he tore the backboards down and let the whole gym know,",
+    "in purple gold he three-peated, ring on ring aglow,",
+    "then a tide down in Miami, one more for the show,",
+    "the Diesel, self-named Superman, most dominant to go."]},
+  {answer:"Kobe Bryant", d:1, lines:[
+    "Straight out of prep to the pros, a teen with veteran eyes,",
+    "in purple gold he chased a ghost of equal jumper size,",
+    "one winter night he poured in eighty-one to fans' surprise,",
+    "a serpent was his creed; two numbers hang up in the skies,",
+    "five rings, and a city that forever lionizes."]},
+  {answer:"Magic Johnson", d:1, lines:[
+    "A six-nine point guard who ran the fast break like light,",
+    "no-look passes flew to places no one thought they might,",
+    "he played the center as a rookie and stole a Finals night,",
+    "Showtime in the Forum, the gold jerseys shining bright,",
+    "the grin they nicknamed Magic — Bird's rival in the fight."]},
+  {answer:"Kareem Abdul-Jabbar", d:1, lines:[
+    "A skyhook arced untouchable, a shot none could defray,",
+    "in goggles he outlasted every year and would not decay,",
+    "from Milwaukee to the Lakers' gold his greatness found its stay,",
+    "he changed his name from what it was and scored along the way,",
+    "the captain and his skyhook — the most points, till one day."]},
+  {answer:"Wilt Chamberlain", d:1, lines:[
+    "A giant who once poured in a hundred in one game,",
+    "he averaged a fifty for a year — none did the same,",
+    "the Stilt, the Dipper, records stacked beyond acclaim,",
+    "he warred with Russell's Celtics through a decade-spanning frame,",
+    "one hundred on the scoreboard still enshrines his name."]},
+  {answer:"Kevin Durant", d:1, lines:[
+    "A scorer built like a wing but tall as any tree,",
+    "\"you the real MVP\" — he wept for all to see,",
+    "he left the Thunder's blue to join a juggernaut by the sea,",
+    "two Finals crowns he seized there, silky as could be,",
+    "the Slim Reaper, KD, unguardable and free."]},
+  {answer:"Kyrie Irving", d:1, lines:[
+    "A handle like a magic trick, the ball on unseen string,",
+    "he hit a dagger in the Finals to seal a champion's ring,",
+    "he's Uncle Drew in old-man makeup, and flat-earth wondering,",
+    "from Cleveland gold to Boston, Brooklyn, Dallas he would wing,",
+    "Kyrie, the ankle-breaking guard whose crossovers still sting."]},
+  {answer:"Carmelo Anthony", d:1, lines:[
+    "A college freshman won it all, then leapt to pro acclaim,",
+    "he scored in silky bunches, the mid-range his domain,",
+    "in Denver blue and Knick orange he built a scorer's name,",
+    "three Olympic golds he gathered for his country's aim,",
+    "Melo, the bucket-getting wing — a ring the missing frame."]},
+  {answer:"Dwight Howard", d:1, lines:[
+    "A cape upon his shoulders in a dunk contest of old,",
+    "the Magic's man of muscle, defensive player, bold,",
+    "he blocked and dunked and grinned, the most rebounds to hold,",
+    "a title late in purple gold once his prime had rolled,",
+    "Superman, the smiling center — thrice the defense he controlled."]},
+  {answer:"Derrick Rose", d:1, lines:[
+    "A hometown kid in Chicago red who rose like sudden fire,",
+    "the youngest ever MVP, explosive, quick, and higher,",
+    "then his knees betrayed the gift, a cruel and slow-drawn mire,",
+    "he battled back for years, the crowd's undimmed desire,",
+    "D-Rose, the fallen phenom whom the city won't retire."]},
+  {answer:"Giannis Antetokounmpo", d:2, lines:[
+    "From Athens streets he rose, once selling trinkets cheap,",
+    "his stride would cross the lane in one improbable leap,",
+    "he stayed to lift a title long the city could not keep,",
+    "a Freak of Grecian myth whose faithful stampede and heap,",
+    "a fifty-point crown at home — the loyal deer can leap."]},
+  {answer:"Allen Iverson", d:2, lines:[
+    "Six-foot-nothing, all of heart, he never learned to fold,",
+    "a crossover so wicked it left the greatest cold,",
+    "he stepped across a fallen guard, defiant, brash and bold,",
+    "\"Practice?\" — one rant that turned to myth and cultural gold,",
+    "the Answer, sleeve and cornrows, smallest MVP extolled."]},
+  {answer:"Larry Bird", d:2, lines:[
+    "From French Lick's quiet hills a small-town myth was spun,",
+    "his trash talk cut like frost before the shot was done,",
+    "three straight of the MVPs in green, a war hard-won,",
+    "he'd call the game's result before it had begun,",
+    "the Hick who won the three-point shootout, warmups on."]},
+  {answer:"Luka Dončić", d:2, lines:[
+    "A teen from Slovenia who'd conquered Europe first,",
+    "he stepped back into daggers, for the moment never cursed,",
+    "in Dallas blue he stat-stuffed till the box scores nearly burst,",
+    "then a shock trade to the Lakers left a fanbase immersed,",
+    "Luka Magic, the old-world wonder, well-rehearsed."]},
+  {answer:"Nikola Jokić", d:2, lines:[
+    "A second-round pick announced mid Taco Bell ad,",
+    "a passing big whose vision made defenders look so bad,",
+    "three MVPs in Denver, and a title that they had,",
+    "he'd rather race his horses back in Serbia, the lad,",
+    "the Joker deals his no-looks — the finest big to be had."]},
+  {answer:"Tim Duncan", d:2, lines:[
+    "So stoic they miscalled him dull, the fundamentals pure,",
+    "he kissed the glass on bank shots, a geometry demure,",
+    "five titles down in San Antonio, a dynasty's cure,",
+    "a power forward, quiet, nineteen seasons sure,",
+    "the Big Fundamental — Popovich's cornerstone secure."]},
+  {answer:"Hakeem Olajuwon", d:2, lines:[
+    "From Lagos and the soccer pitch his footwork found its art,",
+    "the Dream Shake spun defenders till their ankles fell apart,",
+    "back-to-back in Houston, he'd out-duel each rival's heart,",
+    "blocks and dreams in Rockets red, a center set apart,",
+    "Hakeem, whom they called The Dream — the pivot's finest chart."]},
+  {answer:"Charles Barkley", d:2, lines:[
+    "Undersized but broad, he'd out-rebound the trees,",
+    "the Round Mound they nicknamed him — he grabbed them with such ease,",
+    "an MVP in Phoenix, though a ring would always tease,",
+    "now loud behind a desk, he needles whom he please,",
+    "Sir Charles, the barrel forward — blunt as a winter breeze."]},
+  {answer:"Dirk Nowitzki", d:2, lines:[
+    "A seven-foot German with a one-legged, leaning shot,",
+    "one franchise, twenty-one years — a loyalty rare-got,",
+    "in twenty-eleven he toppled a super-team's hot plot,",
+    "an MVP, a fadeaway that no defender caught,",
+    "Dirk in Dallas forever — the big man three-point sought."]},
+  {answer:"Kevin Garnett", d:2, lines:[
+    "Straight out of high school, fire in every snarl and shout,",
+    "\"anything is possible!\" he screamed when it ran out,",
+    "long years in Minnesota, then a Boston title bout,",
+    "defense, passion, trash talk — he'd never once back out,",
+    "the Big Ticket, KG — the wolf who ruled the redoubt."]},
+  {answer:"Dwyane Wade", d:2, lines:[
+    "From Marquette he arrived, a shooting guard named Flash,",
+    "a Finals stolen in oh-six on drives both bold and brash,",
+    "then a Big Three by the ocean, championship panache,",
+    "mostly Miami his whole life, the fanbase's cache,",
+    "D-Wade of Wade County — that fearless, slashing dash."]},
+  {answer:"Dennis Rodman", d:2, lines:[
+    "He'd grab the boards like no one, though he cared not to score,",
+    "his hair turned every color of a paintbox, then some more,",
+    "a Bad Boy Piston first, then Bulls, three-peating on the floor,",
+    "tattoos and piercings, headlines that the tabloids all adore,",
+    "the Worm, the peerless rebounder — defense to the core."]},
+  {answer:"James Harden", d:2, lines:[
+    "A beard that launched a thousand memes, step-backs by the ton,",
+    "from sixth man to an MVP once the trade was done,",
+    "in Houston red he led the league in buckets, one by one,",
+    "iso ball and foul-baiting till the whistle sung,",
+    "The Beard, the scoring maestro — Eurostep, and he's gone."]},
+  {answer:"Damian Lillard", d:2, lines:[
+    "From little Weber State he came, a scorer overlooked,",
+    "a wave goodbye from deep in the playoffs, a foe's fate cooked,",
+    "long years true to Portland, till a Bucks trade got him booked,",
+    "he raps as Dame D.O.L.L.A. when the microphone is hooked,",
+    "Dame Time from the logo — the clutch on which they looked."]},
+  {answer:"Kawhi Leonard", d:2, lines:[
+    "Enormous hands, a silence, and a stare that never broke,",
+    "\"board man gets paid\" — near the only quiet joke he spoke,",
+    "a Finals MVP in Spurs black, then a northern title's stroke,",
+    "the buzzer-beater bouncing high above the Philly oak,",
+    "the Klaw, the fun-guy robot — a lockdown wing, no smoke."]},
+  {answer:"Russell Westbrook", d:2, lines:[
+    "A fury off the dribble, triple-doubles his refrain,",
+    "he averaged a season's worth, a modern Oscar's reign,",
+    "an MVP in Thunder blue beside a scorer's mane,",
+    "loud fashion, \"why not?\" swagger, attacking without rein,",
+    "Westbrook, the Brodie whirlwind — relentless as the rain."]},
+  {answer:"Anthony Edwards", d:2, lines:[
+    "A Georgia kid with hops that make the poster-victims flee,",
+    "his dunks go viral nightly, raw and full of glee,",
+    "a Timberwolf who carried them past playoff misery,",
+    "brash-talking and charismatic, the face they hope to see,",
+    "Ant-Man, the high-flying guard — the league's next marquee."]},
+  {answer:"Ja Morant", d:2, lines:[
+    "From tiny Murray State he sprang, unheralded, then flew,",
+    "his drives and dunks defied the laws of physics that we knew,",
+    "the Grizzlies' electric engine, Memphis through and through,",
+    "Rookie of the Year once crowned, gravity he'd misconstrue,",
+    "Ja, the soaring point guard — a highlight-reel debut."]},
+  {answer:"Joel Embiid", d:2, lines:[
+    "From Cameroon and volleyball he learned the game so late,",
+    "\"The Process\" was the promise as the fans learned how to wait,",
+    "he bullied through the paint, an MVP first-rate,",
+    "a seventy-point night in Philly sealed his scoring state,",
+    "Embiid, the trusting center — dominant and irate."]},
+  {answer:"Jayson Tatum", d:2, lines:[
+    "From St. Louis and from Duke he came, a smooth and scoring wing,",
+    "in Celtic green he chased the ghosts that hung banners bring,",
+    "he raised a fresh one high at last, a champion's spring,",
+    "midrange, step-backs, deep threes — a versatile everything,",
+    "Tatum, the Boston forward whom the parquet loves to sing."]},
+  {answer:"Anthony Davis", d:2, lines:[
+    "A unibrow they merchandised, a big who runs the floor,",
+    "he blocks and scores in equal measure, agile at the core,",
+    "beside a King in purple gold a bubble ring he bore,",
+    "from New Orleans he was traded, the Lakers wanting more,",
+    "AD, the two-way giant — the Brow the fans adore."]},
+  {answer:"Victor Wembanyama", d:2, lines:[
+    "A tower out of France, arms wide as a condor's span,",
+    "he handles like a guard although he's tallest in the clan,",
+    "the number-one selection, a phenom's grand new plan,",
+    "he swats the shot then drains the three, a unicorn who ran,",
+    "Wemby down in San Antonio — the future's tallest man."]},
+  {answer:"Bill Russell", d:2, lines:[
+    "Eleven rings he stacked, a total none exceed,",
+    "in Celtic green his blocks and boards would anchor every deed,",
+    "he dueled with Wilt for years, defense his purest creed,",
+    "a champion for civil rights who spoke and would not cede,",
+    "Russell, the winning center — his number the league decreed."]},
+  {answer:"Jerry West", d:2, lines:[
+    "His silhouette became the very logo of the game,",
+    "so clutch that \"Mr. Clutch\" was carved beside his name,",
+    "the lone Finals MVP to lose, a bittersweet acclaim,",
+    "in Laker gold he starred, then built new teams to fame,",
+    "West, the logo's model — the executive's keen aim."]},
+  {answer:"Julius Erving", d:2, lines:[
+    "He soared from the free-throw line before a young Jordan tried,",
+    "an afro and a finger roll, the ABA his early stride,",
+    "\"Doctor\" was the name they gave the artist mid-glide,",
+    "a Sixers crown in eighty-three, a city's swelling pride,",
+    "Erving, the doctor of dunks — a highlight bona fide."]},
+  {answer:"Karl Malone", d:2, lines:[
+    "The Mailman, so they named him, for he always would deliver,",
+    "on Stockton's pick-and-roll he'd thunder like a river,",
+    "two MVPs in Utah's purple made the rivals shiver,",
+    "near the most points ever scored, a tireless nightly giver,",
+    "Malone, the bruising forward — the ring, a missing sliver."]},
+  {answer:"John Stockton", d:2, lines:[
+    "In short shorts he ran the point, unflashy but supreme,",
+    "the all-time leader in assists, the pass his central theme,",
+    "with Malone the pick-and-roll became a lethal scheme,",
+    "the most steals in the record books, a thief who'd rob the seam,",
+    "Stockton, the Jazz floor general — Utah's steady stream."]},
+  {answer:"Isiah Thomas", d:2, lines:[
+    "A smiling assassin, small of frame but fierce inside,",
+    "he led Detroit's Bad Boys to titles, wounding rivals' pride,",
+    "a Finals MVP, a captain, on whom the Pistons relied,",
+    "the ninety-two Dream Team infamously left him aside,",
+    "Isiah, the little floor boss — with a killer stride."]},
+  {answer:"Jimmy Butler", d:2, lines:[
+    "From a hard-luck youth he clawed, last pick of the first-round tier,",
+    "\"Playoff Jimmy\" flips a switch when the postseason is near,",
+    "he dragged a Miami eight-seed to a Finals, without fear,",
+    "he brews his own strange coffee, and his emo photos veer,",
+    "Butler, the two-way bulldog — clutch when the stakes appear."]},
+  {answer:"Devin Booker", d:2, lines:[
+    "A Kentucky one-and-done with a jumper pure and bright,",
+    "he once dropped in a seventy as a kid on a wild night,",
+    "in Phoenix orange he led them to a Finals' near-height,",
+    "a scorer's scorer, midrange art, a shot-maker's delight,",
+    "Booker, the Suns' cold gunner — \"be legendary\" in sight."]},
+  {answer:"Klay Thompson", d:2, lines:[
+    "One half of a Splash duo, catch-and-shoot supreme,",
+    "he once poured thirty-seven in a quarter, a scoring dream,",
+    "four rings up in the Bay, a marksman on the team,",
+    "then off to Dallas late, still draining from downtown's seam,",
+    "Klay, the quiet sniper — the other splash in the stream."]},
+  {answer:"Draymond Green", d:2, lines:[
+    "A second-round find who guards one through five with fire and mouth,",
+    "the emotional core of a dynasty, he'd never once back out,",
+    "four rings and a podcast, techs and ejections throughout,",
+    "the Defensive Player once crowned, all passion, snarl and shout,",
+    "Draymond, the Warriors' engine — the glue with scream and clout."]},
+  {answer:"Shai Gilgeous-Alexander", d:2, lines:[
+    "A Canadian of cardigans, a midrange smooth as glass,",
+    "he draws the fouls and floats the pull-up, buckets en masse,",
+    "he led the Thunder's youthful core to the top of the class,",
+    "an MVP and champion, the summit reached at last,",
+    "Shai, the silky scoring guard — Oklahoma's rising brass."]},
+  {answer:"Trae Young", d:2, lines:[
+    "A deep-range gunner out of Oklahoma, floaters fine,",
+    "he hushed the Garden crowd and bowed, a villain by design,",
+    "\"Ice Trae\" they call him, dishing dimes and bombs past the line,",
+    "he came in a draft-night swap involving one Slovenian sign,",
+    "Young, the Hawks' small maestro — deep logo threes divine."]},
+  {answer:"Zion Williamson", d:2, lines:[
+    "A freshman phenom, near three-hundred pounds of spring,",
+    "he blew a shoe apart at Duke, the whole world watching him wing,",
+    "the number-one selection, thunderous dunks his thing,",
+    "in New Orleans he dazzles when his health allows the swing,",
+    "Zion, the freight-train forward — explosive power king."]},
+  {answer:"Paul George", d:2, lines:[
+    "\"PG-13\" and \"Playoff P,\" a two-way wing of note,",
+    "from Fresno State he rose, and on lockdown D he'd dote,",
+    "a gruesome leg break once he suffered, yet returned to float,",
+    "through Indiana, Oklahoma, the Clippers, Philly's coat,",
+    "George, the polished two-way wing — his jumper stays afloat."]},
+  {answer:"Vince Carter", d:2, lines:[
+    "The greatest dunk-contest night the sport has ever seen,",
+    "he leapt clean over a seven-foot Frenchman, cruelly keen,",
+    "half man and half amazing, the arena's wildest scene,",
+    "north of the border first, then twenty-two years lean,",
+    "Vinsanity in the air — the highest-flying wing serene."]},
+  {answer:"Yao Ming", d:2, lines:[
+    "A giant out of China, seven-six and gently sure,",
+    "the fans would vote him in each year, his popularity pure,",
+    "in Houston red he hooked and dunked, a bridge across the shore,",
+    "injuries would end it early, feet that couldn't endure,",
+    "Yao, the towering ambassador — the Rockets' Eastern core."]},
+  {answer:"Paul Pierce", d:2, lines:[
+    "They nicknamed him \"The Truth\" when a big man gave him praise,",
+    "a wheelchair rolled him off, then back he came to blaze,",
+    "in Celtic green he scored and shot through clutch and stubborn days,",
+    "an oh-eight Finals MVP, a banner he'd help raise,",
+    "Pierce, the Boston closer — the truth in scoring ways."]},
+  {answer:"Tony Parker", d:2, lines:[
+    "A speedy French point guard who'd knife the lane at will,",
+    "the tear-drop floater kissing glass, a signature of skill,",
+    "four rings in silver-black, the Spurs' relentless drill,",
+    "a Finals MVP in oh-seven, French flag flying still,",
+    "Parker, the darting playmaker — San Antonio's quick quill."]},
+  {answer:"Jason Kidd", d:2, lines:[
+    "A pass-first floor general, triple-doubles his trade,",
+    "he dragged the Nets to Finals twice, the fast break he'd parade,",
+    "near the top in all-time assists, the dimes that he'd have made,",
+    "a ring at last in Dallas in eleven, veteran aid,",
+    "Kidd, the vision-first point guard — a coach the game remade."]},
+  {answer:"Grant Hill", d:2, lines:[
+    "A Duke-bred heir to greatness, the next big thing they cried,",
+    "in Detroit he soared and passed, a do-it-all with pride,",
+    "then ankle woes near ended it, the promise near denied,",
+    "he battled back for years, a graceful vet who'd bide,",
+    "Hill, the smooth all-around wing — his prime the injuries pried."]},
+  {answer:"Penny Hardaway", d:2, lines:[
+    "A tall and silky point guard beside a Superman-sized friend,",
+    "a puppet named for him would hawk the sneakers he'd defend,",
+    "to the Finals in the mid-nineties the young Magic he'd send,",
+    "then injuries would clip the wings, the stardom to upend,",
+    "Penny, the point-forward flash — a prime cut short, my friend."]},
+  {answer:"Joe Dumars", d:2, lines:[
+    "A quiet Bad Boy guard who'd guard the greatest, cool and true,",
+    "he'd chase down Michael nightly, defense his to pursue,",
+    "a Finals MVP in eighty-nine, Detroit's title crew,",
+    "a sportsman ever gracious, an exec he'd later do,",
+    "Dumars, the two-way guard — the Pistons through and through."]},
+  {answer:"Chris Bosh", d:2, lines:[
+    "A lanky, skilled big man, from Georgia Tech he came,",
+    "in Toronto first he starred, then to Miami's flame,",
+    "the third of a Big Three, two rings to his name,",
+    "a corner three, a rebound, in the clutch the same,",
+    "then blood clots stole the ending — Bosh, a career's cruel frame."]},
+  {answer:"Amar'e Stoudemire", d:2, lines:[
+    "\"STAT,\" a thunderous finisher off Nash's lofted feed,",
+    "prep-to-pro he'd exploded, athletic, quick indeed,",
+    "in Phoenix purple he'd dunk and score at blazing speed,",
+    "then to the Knicks he'd bring some hope, a fan-base's need,",
+    "Stoudemire, the high-flying big — Amar'e, all speed."]},
+  {answer:"Gilbert Arenas", d:2, lines:[
+    "\"Agent Zero,\" a fearless gunner, wild and free of doubt,",
+    "he'd wave off double-teams and drain them, \"hibachi\" his shout,",
+    "in Washington he dropped in sixty, buzzer-beaters throughout,",
+    "a streaky, showman scoring guard the fans would rave about,",
+    "Arenas, the fearless gunner — Gilbert, cold in the clutch throughout."]},
+  {answer:"Baron Davis", d:2, lines:[
+    "A powerful point guard with a crossover and a beard,",
+    "the \"We Believe\" upset in oh-seven, an eight-seed engineered,",
+    "he dunked on Kirilenko, a poster fans revered,",
+    "explosive, flashy, streaky, a highlight when he steered,",
+    "Davis, the bulldog point guard — Baron, whom the Bay cheered."]},
+  {answer:"Kevin Love", d:2, lines:[
+    "An outlet-passing forward who'd fling it court to court,",
+    "in Minnesota he'd rebound and score, a double-double sort,",
+    "then to Cleveland's shore he went, a Big Three's third support,",
+    "a ring in sixteen, a stop on Curry the last resort,",
+    "Love, the stretch-four rebounder — Kevin, a title's fort."]},
+  {answer:"Al Horford", d:2, lines:[
+    "A steady, versatile big who'd anchor and would stretch,",
+    "in Atlanta first, then Boston, a defensive net he'd fetch,",
+    "underrated for his consistency, the winning plays he'd etch,",
+    "a title late in his career, a ring at last to catch,",
+    "Horford, the steady center — Al, a durable, winning stretch."]},
+  {answer:"Khris Middleton", d:2, lines:[
+    "A quiet, clutch-shooting wing beside a Grecian Freak,",
+    "in Milwaukee's green his mid-range shots would rise when games peak,",
+    "a title in twenty-one, the second-star technique,",
+    "an All-Star, cold and steady, the buckets that he'd seek,",
+    "Middleton, the clutch-shooting wing — Khris, when the stakes speak."]},
+  {answer:"DeMar DeRozan", d:2, lines:[
+    "A mid-range-loving scorer from Compton's asphalt fame,",
+    "in Toronto's red he'd fill it up, the fadeaway his game,",
+    "he'd shun the three yet score in droves, a throwback all the same,",
+    "he spoke of mental health out loud, a courage to acclaim,",
+    "DeRozan, the mid-range scorer — DeMar, a bucket's name."]},
+  {answer:"Jaylen Brown", d:2, lines:[
+    "An athletic two-way wing from Berkeley's thoughtful halls,",
+    "in Celtic green he'd slash and score, defense on rival stars,",
+    "a Finals MVP in twenty-four when Boston answered the calls,",
+    "explosive to the rim, a stopper who forestalls,",
+    "Brown, the two-way Celtic wing — Jaylen, past the squalls."]},
+  {answer:"De'Aaron Fox", d:2, lines:[
+    "The fastest man in the league, \"Swipa\" his moniker's tune,",
+    "in Sacramento's purple he'd blur past defenders soon,",
+    "a Kentucky speedster, clutch when the fourth quarter's noon,",
+    "the first Clutch Player honored, cold beneath the moon,",
+    "Fox, the blur at point guard — De'Aaron, gone by June."]},
+  {answer:"Tyrese Haliburton", d:2, lines:[
+    "A pass-first point guard, lean, with a flick-quick release,",
+    "in Indiana blue he'd rack up dimes, the assists never cease,",
+    "an Iowa State product, unselfish, a floor-game masterpiece,",
+    "clutch buckets in the playoffs, the Pacers' rise increase,",
+    "Haliburton, the passing point — Tyrese, the dish's lease."]},
+  {answer:"Karl-Anthony Towns", d:2, lines:[
+    "A shooting seven-footer who can stroke it from deep,",
+    "\"KAT,\" a stretch-five scorer, the double-doubles heap,",
+    "in Minnesota first he'd star, then New York's roster keep,",
+    "from Kentucky he came, a big whose range runs steep,",
+    "Towns, the shooting center — KAT, whose threes run deep."]},
+  {answer:"Jrue Holiday", d:2, lines:[
+    "A lockdown two-way guard whose defense wins the night,",
+    "a steal and lob in twenty-one helped seal a title's light,",
+    "in Milwaukee then in Boston, a champion's clutch bite,",
+    "quiet, tough, and selfless, the stopper of great might,",
+    "Holiday, the two-way guard — Jrue, defense's knight."]},
+  {answer:"Bradley Beal", d:2, lines:[
+    "A pure and prolific scorer, from Florida he came,",
+    "in Washington he'd fill it up, a bucket-getter's fame,",
+    "a three-and-mid-range marksman, big nights to his name,",
+    "then off to Phoenix's desert, the scoring still the same,",
+    "Beal, the scoring guard — Bradley, a bucket's aim."]},
+  {answer:"Zach LaVine", d:2, lines:[
+    "A high-flying scoring guard whose dunk-contest duel enthralled,",
+    "he leapt and windmilled toe-to-toe, a rival equally installed,",
+    "in Chicago red he'd fill it up, athletic and unstalled,",
+    "a smooth three-level scorer, the highlight-reels enthralled,",
+    "LaVine, the leaping scorer — Zach, sky-walking, tall."]},
+  {answer:"Jamal Murray", d:2, lines:[
+    "A clutch and fearless scoring guard, from Canada he hails,",
+    "in the bubble he erupted, fifties that told tales,",
+    "in Denver's blue with Jokić, a title's two-man rails,",
+    "a Kentucky killer late in games, the clutch that never fails,",
+    "Murray, the playoff scorer — Jamal, when it entails."]},
+  {answer:"Jalen Brunson", d:2, lines:[
+    "An undersized and crafty guard, a Villanova twice-crowned son,",
+    "in New York's orange he'd score in droves once the playoffs begun,",
+    "the son of an old pro, his footwork second to none,",
+    "a clutch and steady captain, the Garden's newest one,",
+    "Brunson, the crafty scorer — Jalen, cold in the sun."]},
+  {answer:"Jeremy Lin", d:2, lines:[
+    "\"Linsanity\" gripped New York, a February's fire,",
+    "an undrafted Harvard guard who'd suddenly inspire,",
+    "he dropped big nights in a whirlwind, the headlines climbing higher,",
+    "a cultural phenomenon, then a ring he'd later acquire,",
+    "Lin, the Linsanity guard — Jeremy, who lit the wire."]},
+  {answer:"Donovan Mitchell", d:2, lines:[
+    "A dunk-contest crown he seized while still a rookie's age,",
+    "from Louisville he came, \"Spida\" webbed across his page,",
+    "he hung a seventy-one one night, a scorer's full rage,",
+    "from Utah's peaks to Cleveland's shore he carried center stage,",
+    "Mitchell, the shot-making guard — Spida on the stage."]},
+  {answer:"Julius Randle", d:2, lines:[
+    "A bruising lefty forward, from Kentucky's blue he rose,",
+    "in New York's orange he found his peak, Most Improved he chose,",
+    "All-NBA at the Garden where the loudest cheering flows,",
+    "then dealt for a franchise center to Minnesota's snows,",
+    "Randle, the burly playmaking four — a bully in the throes."]},
+  {answer:"Ben Simmons", d:2, lines:[
+    "A ROY out of LSU, a freight train on the break,",
+    "he'd pass and guard all five, a triple-double's easy make,",
+    "the jumper rarely flew, a hesitance he couldn't shake,",
+    "a Philly standoff soured it all, a star-crossed, strange mistake,",
+    "Simmons, the passing giant — promise in the wake."]},
+  {answer:"Andrew Wiggins", d:2, lines:[
+    "A number-one from Kansas, \"Maple Jordan\" in the hype,",
+    "in Minnesota years he scored but critics still would gripe,",
+    "reborn in the Bay, he locked the wings, a two-way archetype,",
+    "a title in twenty-two, his Finals D the winning type,",
+    "Wiggins, the smooth Canadian wing — at last the ripened stripe."]},
+  {answer:"Austin Reaves", d:2, lines:[
+    "Undrafted out of Oklahoma, \"Hillbilly Kobe\" crowned,",
+    "he earned a Laker rotation spot, then made it hallowed ground,",
+    "beside the King and Luka his scoring craft compound,",
+    "game-winners and free throws late, a folk hero renowned,",
+    "Reaves, the undrafted riser — Austin, calm, profound."]},
+  {answer:"Scottie Barnes", d:2, lines:[
+    "A grinning do-it-all from Florida State's long line,",
+    "Rookie of the Year in Toronto, the vote a razor line,",
+    "he passes, guards, and posts, a Swiss-army wing's design,",
+    "the franchise handed him the keys when stars left the shrine,",
+    "Barnes, the versatile smiler — Scottie, the north's new sign."]},
+  {answer:"D'Angelo Russell", d:2, lines:[
+    "\"Ice in my veins,\" his celebration seen across the land,",
+    "from Ohio State he went at two, a Laker's teenage brand,",
+    "an All-Star out in Brooklyn, the pick-and-roll his hand,",
+    "then back to purple-gold he came, the journey never planned,",
+    "Russell, the lefty maestro — D-Lo, cool as planned."]},
+  {answer:"Marcus Smart", d:2, lines:[
+    "A snarling Oklahoma State guard, all floor-burns and all heart,",
+    "the first guard in a generation to win the defensive art,",
+    "in Boston green he took the charge, the culture's beating chart,",
+    "they wept when he was traded — Memphis pulled the thread apart,",
+    "Smart, the DPOY bulldog — Marcus, the Celtics' heart."]},
+  {answer:"Alperen Şengün", d:2, lines:[
+    "From Turkey came a center with a bag of ancient tricks,",
+    "spin moves and dream-shakes, the post his pile of bricks,",
+    "comparisons to a Serbian passer stuck among the critics,",
+    "an All-Star hub in Houston where the offense clicks,",
+    "Şengün, the crafty pivot — Alperen, the Bosphorus mix."]},
+  {answer:"Tyler Herro", d:2, lines:[
+    "A Kentucky rookie dropped thirty-seven in the bubble's glow,",
+    "the snarl became a poster, \"Boy Wonder\" apropos,",
+    "Sixth Man of the Year, then All-Star status in tow,",
+    "in Miami's shot-making culture his pull-up runs the show,",
+    "Herro, the confident gunner — Tyler, buckets aglow."]},
+  {answer:"Lauri Markkanen", d:2, lines:[
+    "\"The Finnisher\" from Finland, seven feet of stroke,",
+    "in Chicago's plans he faded, a promise nearly broke,",
+    "then Utah's mountains freed him — Most Improved awoke,",
+    "an All-Star stretch-big scoring cloaked in Nordic cloak,",
+    "Markkanen, the shooting tower — Lauri, the Finnish oak."]},
+  {answer:"Deandre Ayton", d:2, lines:[
+    "From Bahamian shores, the first name called in eighteen's class,",
+    "ahead of a Slovenian wonder and a deep-range flash,",
+    "in Phoenix's Finals run he rolled to lobs en masse,",
+    "the valley's whipping boy at times, still buckets by the mass,",
+    "Ayton, the polished center — Deandre, first of class."]},
+  {answer:"Jordan Poole", d:2, lines:[
+    "A Michigan buzzer-beater first put his name in lights,",
+    "\"Poole Party\" in the Bay through championship nights,",
+    "a training-camp fist to his jaw made uglier headlights,",
+    "then Washington's lead gunner, free to fire from all heights,",
+    "Poole, the flashy scorer — Jordan, the party's rites."]},
+  {answer:"Bronny James", d:2, lines:[
+    "A cardiac arrest at practice nearly closed the book,",
+    "he fought back to the draft — the second round they took,",
+    "the first to share a court with his own father — look:",
+    "one night, one lineup, history in every camera's hook,",
+    "James, the son ascending — Bronny, the legacy's rook."]},
+  {answer:"Dominique Wilkins", d:2, lines:[
+    "\"The Human Highlight Film\" — the windmill was his pen,",
+    "he dueled a rising Jordan in the greatest contest then,",
+    "a scoring crown in eighty-six, Atlanta's alpha wren,",
+    "the judges in Chicago robbed him — eighty-eight, again,",
+    "Wilkins, the tomahawk legend — Dominique, the highlight's den."]},
+  {answer:"Dikembe Mutombo", d:2, lines:[
+    "A finger wagged at every shooter foolish near his post,",
+    "\"not in my house\" — the four-time top defender's boast,",
+    "from Congo through Georgetown, the humanitarian's coast,",
+    "he lay upon the floor in joy when eight beat one — a ghost,",
+    "Mutombo, the wagging tower — Dikembe, the paint's riposte."]},
+  {answer:"Blake Griffin", d:2, lines:[
+    "He missed his rookie season, then won Rookie of the Year,",
+    "he leapt above a sedan while the whole world stood to cheer,",
+    "Lob City's throwing-down half with a Point God's feeding spear,",
+    "then Detroit's max and Brooklyn's bench, the humor his frontier,",
+    "Griffin, the posterizing four — Blake, the car-clearing seer."]},
+  {answer:"Isaiah Thomas", d:2, lines:[
+    "The final pick of his whole draft — Mr. Irrelevant's chair,",
+    "five-nine of pure defiance, named for a Piston's flair,",
+    "the King in the Fourth in Boston, a top-MVP-vote year,",
+    "he dropped fifty-three in playoffs through a sister's loss and tear,",
+    "Thomas, the little giant — Isaiah, the heart laid bare."]},
+  {answer:"Scottie Pippen", d:3, lines:[
+    "The second star who'd guard you one through five with ease,",
+    "six rings beside a legend, though he'd note the debt with these,",
+    "a lockdown wing whose value the old footage now decrees,",
+    "from tiny Central Arkansas to Chicago's dynasties,",
+    "Pippen, the running mate — the glue that seized the keys."]},
+  {answer:"Chris Paul", d:3, lines:[
+    "A floor general precise, the Point God some proclaim,",
+    "Lob City throws in Clipper red first built his lofty name,",
+    "assists and steals in bunches, but a ring eludes his aim,",
+    "one Finals run in Phoenix fell just short of the flame,",
+    "CP3, the maestro guard — pure control his fame."]},
+  {answer:"Reggie Miller", d:3, lines:[
+    "A Pacer through and through, from deep his living made,",
+    "eight points in nine ticks once left the Garden's crowd dismayed,",
+    "he taunted Spike Lee courtside, choke sign flashed, unafraid,",
+    "his sister starred in hoops as well, but he's the sharpshooting shade,",
+    "Reggie, the Knick-slaying gunner — a clutch that never frayed."]},
+  {answer:"Ray Allen", d:3, lines:[
+    "The purest jumper's form, from the corner cold and clean,",
+    "in Game Six with the season gone he saved the Heat's whole dream,",
+    "he starred in Spike Lee's picture as a hoops-prodigy teen,",
+    "most threes of all until a splashing kid dethroned the scene,",
+    "Ray Allen — Jesus Shuttlesworth — the marksman most serene."]},
+  {answer:"Tracy McGrady", d:3, lines:[
+    "Thirteen points in thirty-three seconds — a miracle in red,",
+    "sleepy eyes that masked a scorer few could guard, it's said,",
+    "two scoring crowns in Orlando's magic-blue he led,",
+    "he's Vince Carter's cousin, wingspan long, but playoffs full of dread,",
+    "T-Mac, the silky wing whose first-round curse was widespread."]},
+  {answer:"David Robinson", d:3, lines:[
+    "He served the Navy first before the hardwood called his name,",
+    "a seventy-one-point night once staked his scoring claim,",
+    "twin towers in San Antonio, two rings within the frame,",
+    "an MVP, a shot-block anchor, disciplined and tame,",
+    "the Admiral saluted — the Spurs' towering acclaim."]},
+  {answer:"Patrick Ewing", d:3, lines:[
+    "A Georgetown Hoya giant who would sweat through every fight,",
+    "the Knicks' great hope in the nineties, guarding the paint each night,",
+    "he fell in ninety-four in the Finals, just short of a title's light,",
+    "a theory bears his name — teams somehow winning without his height,",
+    "Ewing, the Garden's centerpiece — a ring beyond his sight."]},
+  {answer:"Gary Payton", d:3, lines:[
+    "They called his hands the Glove for how he smothered every guard,",
+    "the only point to win top-defender, pressing foes so hard,",
+    "in Seattle green his trash talk left opponents scarred,",
+    "a title came at last in Miami, a late-career reward,",
+    "Payton, the Glove of the Sonics — lockdown, sharp, and barred."]},
+  {answer:"Pete Maravich", d:3, lines:[
+    "Floppy socks and razzle passes decades premature,",
+    "the greatest college scorer, points in torrents, pure,",
+    "a showman's flair the staid old league could barely reassure,",
+    "his life cut short too early, the legend growing more,",
+    "Pistol Pete, the handle wizard — flashy, sad, and sure."]},
+  {answer:"George Gervin", d:3, lines:[
+    "So cool they called him Ice, the finger roll his art,",
+    "four scoring crowns he gathered, playing every part,",
+    "a sixty-three-point afternoon once topped the scoring chart,",
+    "in silver-black San Antone he set himself apart,",
+    "the Iceman and his finger roll — the smoothest scoring heart."]},
+  {answer:"Manu Ginóbili", d:3, lines:[
+    "An Argentine lefty off the bench who'd swing a game around,",
+    "he popularized the Euro-step, a rhythm all his own found,",
+    "four rings in silver-black, though a sixth man he was crowned,",
+    "Olympic gold in oh-four, the mighty USA downed,",
+    "Ginóbili — the Spurs' bald spark — clutch, and never bound."]},
+  {answer:"Oscar Robertson", d:3, lines:[
+    "The first to average a triple-double for a year,",
+    "the Big O ran the offense, all-around and without peer,",
+    "he pushed for players' freedom, a landmark he would steer,",
+    "a title beside the skyhook once his Bucks days drew near,",
+    "Robertson, the complete guard — a pioneer's frontier."]},
+  {answer:"Clyde Drexler", d:3, lines:[
+    "They called him Clyde the Glide, so smooth above the rim,",
+    "in Portland's red and black he soared, the highlights all his hymn,",
+    "he chased his old friend Hakeem and won a ring with him,",
+    "a Dream Teamer, a scorer, on a fast break never dim,",
+    "Drexler, the gliding guard — the Blazers' airborne vim."]},
+  {answer:"Moses Malone", d:3, lines:[
+    "Straight from high school to the pros before it was the trend,",
+    "he feasted on the offensive glass few rivals could defend,",
+    "\"fo', fi', fo'\" he foretold of the playoffs, a near-sweep to send,",
+    "he ruled the paint in Philly, an eighty-three title penned,",
+    "Malone, the boards-devouring big — three MVPs to lend."]},
+  {answer:"Elgin Baylor", d:3, lines:[
+    "A forward ahead of his time, hang-time before the phrase,",
+    "he poured in seventy-one one night to a crowd's amaze,",
+    "in Laker blue and gold he starred through pre-Showtime days,",
+    "he retired just before a title, a cruel and bitter blaze,",
+    "Baylor, the airborne scorer — a ring beyond his gaze."]},
+  {answer:"Walt Frazier", d:3, lines:[
+    "\"Clyde\" they nicknamed him for the fur coats and the flair,",
+    "cool hands on defense, stealing passes from the air,",
+    "two Knicks titles in the seventies he'd help prepare,",
+    "now his rhyming broadcast voice still fills the New York air,",
+    "Frazier, the stylish guard — swishing, dishing, debonair."]},
+  {answer:"James Worthy", d:3, lines:[
+    "\"Big Game James\" they called him when the lights were at their peak,",
+    "a Laker in the Showtime run, the fast break's finishing streak,",
+    "from Carolina blue he came, his spin move smooth and sleek,",
+    "a Finals MVP in eighty-eight, decisive, never meek,",
+    "Worthy, the Showtime forward — clutch in the moments bleak."]},
+  {answer:"Kevin McHale", d:3, lines:[
+    "In the low post he was torture, arms like pythons, moves untold,",
+    "the up-and-under baffled centers, leaving them cajoled,",
+    "three rings in Celtic green beside a legend, brave and bold,",
+    "a clothesline once on Rambis when a Finals ran cold,",
+    "McHale, the post-move maestro — the Big Three's frame of old."]},
+  {answer:"Alonzo Mourning", d:3, lines:[
+    "A Georgetown center fierce, all sinew, sweat and scowl,",
+    "he swatted shots in Miami, defiant, on the prowl,",
+    "a kidney illness threatened all, yet back he came to growl,",
+    "a ring at last in oh-six, the crowd's approving howl,",
+    "Mourning, the shot-blocking Zo — intensity to disembowel."]},
+  {answer:"Chris Webber", d:3, lines:[
+    "One of a Fab Five freshmen who shook the college game,",
+    "he called a timeout he didn't have — a lasting, cruel shame,",
+    "in Sacramento's early-aughts he built a run to fame,",
+    "a power forward, passing big, \"C-Webb\" his given name,",
+    "Webber, the versatile forward — the Kings' offensive frame."]},
+  {answer:"Ben Wallace", d:3, lines:[
+    "Undrafted out of nowhere, an afro wild and free,",
+    "he anchored Detroit's defense, blocks and boards his decree,",
+    "four times the top defender, though he'd rarely score, you see,",
+    "an oh-four title over stars, the Pistons' guarantee,",
+    "Wallace, the \"Big Ben\" center — a wall no drive got free."]},
+  {answer:"Rasheed Wallace", d:3, lines:[
+    "\"Ball don't lie,\" he'd bellow when a foul-shot clanged the wall,",
+    "he led the league in technicals, would bark at one and all,",
+    "a stretch-four before the term, he'd drain the three or maul,",
+    "an oh-four ring in Detroit, once a Blazer in Portland's brawl,",
+    "Rasheed, the fiery forward — \"Sheed,\" who feared no call."]},
+  {answer:"Chauncey Billups", d:3, lines:[
+    "\"Mr. Big Shot,\" cold and clutch when the seconds ticked to none,",
+    "a journeyman who found his home in Detroit's title run,",
+    "the Finals MVP in oh-four, when the Pistons' work was done,",
+    "a steady point who ran the show, deliberate, never spun,",
+    "Billups, the big-shot guard — Detroit's championship son."]},
+  {answer:"Shawn Kemp", d:3, lines:[
+    "The \"Reign Man\" thundered lobs from a point guard's slick design,",
+    "with Payton up in Seattle he'd rattle rims in kind,",
+    "explosive, high, and violent, his dunks a highlight line,",
+    "a ninety-six Finals with the Bulls, though gold he'd not entwine,",
+    "Kemp, the sky-walking forward — the Sonics' airborne sign."]},
+  {answer:"Muggsy Bogues", d:3, lines:[
+    "At five-foot-three he stood, the shortest ever to play,",
+    "he'd steal the ball from giants, quick as light, then get away,",
+    "in Charlotte teal he ran the point through many a spirited day,",
+    "assists and steals aplenty, though he towered not, they say,",
+    "Bogues, the pint-sized point guard — Muggsy, small yet in the fray."]},
+  {answer:"Rudy Gobert", d:3, lines:[
+    "A Frenchman tall who guards the rim, the \"Stifle Tower\" wall,",
+    "four times the top defender, he deters them one and all,",
+    "he lobs and dunks on offense, meets the drivers at the wall,",
+    "the first to test as positive, the year the league would stall,",
+    "Gobert, the rim-protecting big who swallows shots and all."]},
+  {answer:"Bam Adebayo", d:3, lines:[
+    "A versatile Miami big who guards from one to five,",
+    "his block on Boston's wing once kept the Heat's whole hope alive,",
+    "from Kentucky he arrived, a switch-it-all to drive,",
+    "he sets the screens and hands them off, the offense to revive,",
+    "Adebayo, the two-way center — the Heat's defensive hive."]},
+  {answer:"Pascal Siakam", d:3, lines:[
+    "From Cameroon he came, a seminary path once weighed,",
+    "he climbed from raw to polished, Most Improved once made,",
+    "a champion in Toronto in nineteen, his dues repaid,",
+    "spin moves in transition, a forward unafraid,",
+    "Siakam, the two-way wing — Indiana's later trade."]},
+  {answer:"Pau Gasol", d:3, lines:[
+    "A skilled Spanish seven-footer, soft of touch and mind,",
+    "the trade to gold that sparked two rings, a fortune Lakers mined,",
+    "beside a Mamba's fury the interior he refined,",
+    "his brother won a title too, defensively enshrined,",
+    "Gasol, the graceful big — a Barcelona export, refined."]},
+  {answer:"DeMarcus Cousins", d:3, lines:[
+    "\"Boogie,\" a bruising center, all talent and all fire,",
+    "he'd rack up double-doubles, then a tech to draw the ire,",
+    "in Sacramento's purple he was king though teams stayed dire,",
+    "an Achilles and a knee would steal the prime he'd aspire,",
+    "Cousins, the volatile big — a brilliance the fates expired."]},
+  {answer:"Paolo Banchero", d:3, lines:[
+    "A big-wing out of Duke, the number-one of his class,",
+    "in Orlando's blue he shoulders a youthful, rising mass,",
+    "Rookie of the Year once crowned, with strength and touch en masse,",
+    "he bullies to the rim and kicks, a forward hard to surpass,",
+    "Banchero, the Magic's cornerstone — a future none should bypass."]},
+  {answer:"Chet Holmgren", d:3, lines:[
+    "A rail-thin seven-footer who can shoot and swat with ease,",
+    "from Gonzaga he arrived, a modern unicorn to please,",
+    "he stretches out the floor, then guards the rim's high frieze,",
+    "a Thunder title piece when young, defensive expertise,",
+    "Holmgren, the slender big — a matchup none can seize."]},
+  {answer:"Cooper Flagg", d:3, lines:[
+    "A Maine-born phenom, first pick taken, hype a tidal wave,",
+    "from Duke he stepped into the league, precocious, two-way, brave,",
+    "the Mavericks won the lottery, the future star they'd crave,",
+    "he guards and scores with a poise that few his age e'er gave,",
+    "Flagg, the rookie cornerstone — the hope in Dallas they save."]},
+  {answer:"LaMelo Ball", d:3, lines:[
+    "The youngest of a loud, made-for-TV family clan,",
+    "flashy passes, deep-range threes, a highlight-driven plan,",
+    "Rookie of the Year in Charlotte, tattoos across his span,",
+    "his father and his brother filled the headlines' every scan,",
+    "Ball, the Hornets' showman guard — LaMelo, the whole plan."]},
+  {answer:"Steve Nash", d:3, lines:[
+    "A Canadian playmaker with a flow of hair and soccer feet,",
+    "two straight MVPs he claimed while running Phoenix heat,",
+    "\"seven seconds or less,\" the fastest offense on the street,",
+    "from little Santa Clara, pass-first, court vision complete,",
+    "Nash, the run-and-gun magician — a ring the lone defeat."]},
+  {answer:"Bob McAdoo", d:3, lines:[
+    "A scoring-title machine in the seventies' Buffalo blue,",
+    "an MVP who shot from range before the big men knew,",
+    "he later won with Showtime, a role off the bench he'd do,",
+    "smooth from mid and deep, a forward-center's rare purview,",
+    "McAdoo, the scoring big — a shooter ahead of the crew."]},
+  {answer:"Willis Reed", d:3, lines:[
+    "A Knicks captain, tough of frame, who'd anchor the paint with pride,",
+    "he limped from the tunnel in Game Seven, the Garden electrified,",
+    "his mere appearance lifted all, the Lakers pushed aside,",
+    "two titles in New York, a Finals MVP beside,",
+    "Reed, the willed-back captain — inspiration deified."]},
+  {answer:"Dave Cowens", d:3, lines:[
+    "A red-haired Celtic center who'd dive for every ball,",
+    "undersized for the middle, all hustle, standing tall,",
+    "an MVP in the seventies, he answered every call,",
+    "two banners raised in Boston, relentless through it all,",
+    "Cowens, the fiery pivot — the green's most hustling wall."]},
+  {answer:"Rick Barry", d:3, lines:[
+    "He shot his free throws underhand, granny-style and true,",
+    "a deadeye scorer, brash of tongue, whom teammates oft eschew,",
+    "a Warriors title in seventy-five, the Finals MVP due,",
+    "he starred in both the ABA and NBA on view,",
+    "Barry, the underhand marksman — a scorer through and through."]},
+  {answer:"Bob Cousy", d:3, lines:[
+    "The \"Houdini of the Hardwood,\" behind-the-back he'd feed,",
+    "a fifties Celtic magician, the assist his flashy deed,",
+    "six rings beside a shot-blocker of near-unmatched creed,",
+    "he dazzled crowds with dribbling few had thought to lead,",
+    "Cousy, the ball-handling wizard — the passing game's first seed."]},
+  {answer:"Nate Archibald", d:3, lines:[
+    "They called him \"Tiny\" though his game stood ten feet tall,",
+    "he led in points and dimes one year, the only guard of all,",
+    "a quick and darting little man who'd split the giants' wall,",
+    "a ring in Boston later came to answer every call,",
+    "Archibald, the small dynamo — Nate, who did it all."]},
+  {answer:"Adrian Dantley", d:3, lines:[
+    "A stocky scoring forward who drew fouls at every turn,",
+    "he posted up the smaller wings, a bucket he would earn,",
+    "two scoring crowns he gathered, free throws his to burn,",
+    "in Utah and Detroit he scored, a craft the young would learn,",
+    "Dantley, the post-up scorer — points the fans would yearn."]},
+  {answer:"Alex English", d:3, lines:[
+    "The highest-scoring player of the nineteen-eighties' run,",
+    "in Denver's rainbow jerseys his soft jumper came undone,",
+    "a smooth and quiet forward, buckets flowing one by one,",
+    "he wrote his verse off-court as well, a poet 'neath the sun,",
+    "English, the elegant scorer — the Nuggets' silent gun."]},
+  {answer:"Bernard King", d:3, lines:[
+    "An explosive scoring forward, quickest trigger in the game,",
+    "he dropped in sixty on a Christmas, torching all who came,",
+    "in Knick orange he erupted, a scoring title to his name,",
+    "a shredded knee near ended it, but back he'd rise the same,",
+    "King, the flamethrowing forward — Bernard, all scoring flame."]},
+  {answer:"Robert Parish", d:3, lines:[
+    "\"The Chief,\" a stone-faced center, tall and stoic in his role,",
+    "the third of Boston's Big Three, rebounding was his goal,",
+    "among the most games ever played, a durable old soul,",
+    "three rings in Celtic green, then a fourth to make him whole,",
+    "Parish, the ageless center — the quiet, towering pole."]},
+  {answer:"Dennis Johnson", d:3, lines:[
+    "\"DJ,\" a lockdown guard whom the greats would praise as best,",
+    "a Finals MVP in Seattle, defense his very crest,",
+    "in Boston green he thrived, off a Bird steal he was blessed,",
+    "a title guard, clutch and cool, who'd rise to every test,",
+    "Johnson, the defensive ace — DJ, among the blessed."]},
+  {answer:"Sam Jones", d:3, lines:[
+    "A Celtic marksman famed for kissing shots off glass,",
+    "ten rings he gathered in the sixties, a championship mass,",
+    "clutch in the clutch, a bank-shot artist, cool of class,",
+    "beside a shot-block legend he'd help each title pass,",
+    "Jones, the bank-shot scorer — Sam, in the winning class."]},
+  {answer:"Bob Lanier", d:3, lines:[
+    "A lefty giant center with the largest of shoes,",
+    "in Detroit and Milwaukee he'd bruise and score and choose,",
+    "a skilled and heavy pivot the record books would use,",
+    "an All-Star many seasons, though a ring he'd sadly lose,",
+    "Lanier, the big-footed center — a Hall of Fame he'd cruise."]},
+  {answer:"Nate Thurmond", d:3, lines:[
+    "A shot-blocking, board-crashing center, defense his whole creed,",
+    "among the first to a quadruple-double, a rare recorded deed,",
+    "in San Francisco's Warriors' colors he'd anchor every need,",
+    "he battled Wilt and Russell, a stopper they'd all heed,",
+    "Thurmond, the defensive pivot — Nate, the boards' own steed."]},
+  {answer:"Wes Unseld", d:3, lines:[
+    "A blocky, wide-framed center who'd fling the outlet long,",
+    "he won the ROY and MVP in one year, rare and strong,",
+    "in Bullets' red he screened and passed, immovable, headstrong,",
+    "a Finals MVP in seventy-eight, where he'd belong,",
+    "Unseld, the outlet-passing wall — his picks a battle song."]},
+  {answer:"Elvin Hayes", d:3, lines:[
+    "\"The Big E,\" a scoring forward-center, durable and stout,",
+    "he rebounded and he scored, the turnaround his route,",
+    "in Bullets' colors a title came, a long career throughout,",
+    "among the most in minutes played, he'd rarely once sit out,",
+    "Hayes, the iron big man — the Big E, without a doubt."]},
+  {answer:"Artis Gilmore", d:3, lines:[
+    "\"The A-Train,\" a colossus who blocked and dunked with force,",
+    "in the ABA he ruled, a Colonels' title source,",
+    "he shot a blistering clip inside, efficient in his course,",
+    "in Chicago and Kentucky he'd anchor without remorse,",
+    "Gilmore, the towering center — the A-Train's steady course."]},
+  {answer:"Connie Hawkins", d:3, lines:[
+    "\"The Hawk,\" a playground legend with the largest of hands,",
+    "once banned unfairly young, he soared through other lands,",
+    "the ABA then Phoenix saw his palm-the-ball commands,",
+    "a highlight before highlights, improvised and grand,",
+    "Hawkins, the soaring forward — a myth the blacktop spanned."]},
+  {answer:"Bob Pettit", d:3, lines:[
+    "The first to win the MVP the league would ever crown,",
+    "a scoring, rebounding forward of St. Louis Hawks' renown,",
+    "he beat the Celtics once for gold in fifty-eight's showdown,",
+    "relentless on the glass and in the paint he'd hunt them down,",
+    "Pettit, the pioneer forward — the first MVP's own crown."]},
+  {answer:"Dolph Schayes", d:3, lines:[
+    "An early-era forward with a two-hand set-shot form,",
+    "in Syracuse he scored and rebounded, weathering every storm,",
+    "a fifties title with the Nats, before the game's new norm,",
+    "durable and steady, ahead of the reform,",
+    "Schayes, the set-shot pioneer — a star before the swarm."]},
+  {answer:"Lenny Wilkens", d:3, lines:[
+    "A crafty lefty point guard, then a bench-boss of renown,",
+    "he coached more wins than any man once wore the whistle's crown,",
+    "a Sonics title on the sideline brought Seattle its gown,",
+    "enshrined for playing and for coaching, twice the Hall would crown,",
+    "Wilkens, the guard-turned-coach — Lenny, of great renown."]},
+  {answer:"Dave Bing", d:3, lines:[
+    "A scoring guard in Detroit blue, a lead man of his day,",
+    "near-blind in one eye, still he'd score, a wonder in the fray,",
+    "an All-Star and a scoring champ who lit the Pistons' way,",
+    "he'd later serve as Motor City's mayor, so they say,",
+    "Bing, the one-eyed scorer — a leader in every way."]},
+  {answer:"Earl Monroe", d:3, lines:[
+    "\"The Pearl,\" a spinning showman with the silkiest of moves,",
+    "\"Black Jesus\" to the playground, improvising in his grooves,",
+    "from Bullets to the Knickerbockers, a title he'd help prove,",
+    "his spins and stutters baffled all whom he'd remove,",
+    "Monroe, the spinning maestro — Earl, in his own groove."]},
+  {answer:"Gail Goodrich", d:3, lines:[
+    "A lefty scoring guard on the Lakers' record run,",
+    "in seventy-two they won thirty-three straight, second to none,",
+    "a UCLA champion first, then pro gold he'd won,",
+    "he'd knife the lane and shoot, the offense's steady gun,",
+    "Goodrich, the lefty scorer — a title in the sun."]},
+  {answer:"Bill Walton", d:3, lines:[
+    "A red-haired passing center from the UCLA machine,",
+    "he led Portland to a title, the Finals MVP scene,",
+    "then feet of glass betrayed him, injuries obscene,",
+    "a Sixth Man ring in Boston, and a broadcaster keen,",
+    "Walton, the passing pivot — a career the pain would wean."]},
+  {answer:"Jack Sikma", d:3, lines:[
+    "A blond-haired center famed for a step-back turnaround,",
+    "in Seattle green he'd anchor, the \"Sikma move\" renowned,",
+    "a title in seventy-nine, the Sonics' finest sound,",
+    "he'd shoot from range for a big man, rare footing on the ground,",
+    "Sikma, the step-back center — Jack, in Seattle crowned."]},
+  {answer:"Sidney Moncrief", d:3, lines:[
+    "\"Sir Sid,\" a two-way guard whom the scorers came to dread,",
+    "twice the top defender, on the ball he'd lock instead,",
+    "in Milwaukee's green his effort every night he'd spread,",
+    "an All-Star and a stopper, tough and quietly well-read,",
+    "Moncrief, the defensive guard — the man the scorers dread."]},
+  {answer:"Horace Grant", d:3, lines:[
+    "In goggles he'd rebound and guard, a role-man of great worth,",
+    "the Bulls' first three-peat power forward, quiet in his mirth,",
+    "he'd later ring with the Lakers, a champion's second berth,",
+    "hustle, D, and boards he gave, the dirty-work of earth,",
+    "Grant, the goggled forward — the glue of proven worth."]},
+  {answer:"AC Green", d:3, lines:[
+    "The \"Iron Man\" who never missed, a games-played streak supreme,",
+    "in Laker gold through Showtime he'd rebound and glean,",
+    "the record for consecutive games, never off the team,",
+    "a clean-cut, durable forward, steady as a beam,",
+    "Green, the iron forward — AC, the streak's own theme."]},
+  {answer:"Latrell Sprewell", d:3, lines:[
+    "A fiery scoring wing with a braided, defiant air,",
+    "an ugly practice moment with a coach would fill the glare,",
+    "in Knick orange a Finals run in ninety-nine he'd share,",
+    "\"I've got a family to feed,\" a contract line laid bare,",
+    "Sprewell, the volatile scorer — talent and turmoil to spare."]},
+  {answer:"Juwan Howard", d:3, lines:[
+    "One of a Fab Five freshmen who lit the college stage,",
+    "a landmark hundred-million deal once made him headline-page,",
+    "in Washington and Miami he'd score across each age,",
+    "a ring late in Miami, then a coaching second stage,",
+    "Howard, the Fab Five forward — Juwan, the mentor sage."]},
+  {answer:"Allan Houston", d:3, lines:[
+    "A silky Knicks shooter with a jumper pure and clean,",
+    "his running floater beat Miami in the ninety-nine scene,",
+    "he'd stroke it from the perimeter, a marksman rarely mean,",
+    "a big deal once his name attached, the cap-space guillotine,",
+    "Houston, the sweet-shooting guard — his shot the Garden's dream."]},
+  {answer:"Mitch Richmond", d:3, lines:[
+    "A scoring guard of muscle, part of \"Run TMC\" first,",
+    "then years in Sacramento where the losing had him cursed,",
+    "an All-Star Game MVP, his jumper well-rehearsed,",
+    "a ring at last in purple gold once his prime had dispersed,",
+    "Richmond, the strong-shooting guard — buckets, well-immersed."]},
+  {answer:"Mark Price", d:3, lines:[
+    "A deadeye shooting point guard, free throws near-perfection's mark,",
+    "in Cleveland wine and gold he'd stroke it, hitting every arc,",
+    "one of the finest from the line, efficient, sharp, and stark,",
+    "he'd dish and drain the three, a small guard with a spark,",
+    "Price, the sharpshooting point — Mark, whose aim would hark."]},
+  {answer:"Dell Curry", d:3, lines:[
+    "A sweet-shooting sixth man, from deep his living made,",
+    "in Charlotte's teal he'd rain the three, the bench's steady aid,",
+    "a Sixth Man of the Year, his stroke rarely frayed,",
+    "his sons would shoot like him, a legacy displayed,",
+    "Curry, the sharpshooting sire — Dell, whose aim conveyed."]},
+  {answer:"Detlef Schrempf", d:3, lines:[
+    "A versatile German forward, smooth and heady in his play,",
+    "twice a Sixth Man of the Year, a role he'd not betray,",
+    "in Indiana and Seattle he'd score and pass all day,",
+    "an early Euro star before the wave was underway,",
+    "Schrempf, the all-around forward — Detlef, ahead of his day."]},
+  {answer:"Tom Chambers", d:3, lines:[
+    "A high-flying scoring forward with a poster-making jam,",
+    "he once took off near the foul line, over a defender he'd ram,",
+    "in Phoenix and in Seattle he'd fill it, cool and calm,",
+    "an All-Star Game MVP, a scorer with aplomb,",
+    "Chambers, the leaping forward — Tom, whose hops were a bomb."]},
+  {answer:"Kevin Johnson", d:3, lines:[
+    "\"KJ,\" a lightning point guard who'd dunk on giants tall,",
+    "he posterized Hakeem once, a leap to stun them all,",
+    "in Phoenix purple he'd run and dish, quick to the ball,",
+    "he'd later serve as Sacramento's mayor, standing tall,",
+    "Johnson, the darting point guard — KJ, who'd rise and maul."]},
+  {answer:"Dan Majerle", d:3, lines:[
+    "\"Thunder Dan,\" a hustling wing who'd bomb it from deep,",
+    "in Phoenix purple he'd defend, the effort his to keep,",
+    "a three-point marksman early, tough and rarely cheap,",
+    "an All-Star and a fan favorite, his energy would seep,",
+    "Majerle, the Thunder wing — Dan, whose shots ran deep."]},
+  {answer:"Larry Johnson", d:3, lines:[
+    "\"Grandmama\" in the sneaker ads, in wig and floral dress,",
+    "a bruising young forward, Charlotte's number-one, no less,",
+    "a four-point play once shook the Garden, Knicks fans in duress,",
+    "he'd bang inside and knock down threes, a stout and strong finesse,",
+    "Johnson, the Grandmama forward — Larry, whom fans still bless."]},
+  {answer:"Spud Webb", d:3, lines:[
+    "At five-foot-seven small he stood, yet skyward he could leap,",
+    "he won a dunk contest outright, a shock the crowd would keep,",
+    "he out-jumped taller teammates, the highlight his to reap,",
+    "a tiny point guard soaring where the giants dared not creep,",
+    "Webb, the pint-sized dunker — Spud, whose hops ran deep."]},
+  {answer:"Peja Stojaković", d:3, lines:[
+    "A Serbian sharpshooter with a jumper tall and true,",
+    "in Sacramento's early-aughts, from deep the threes he threw,",
+    "a three-point contest champion, the net he'd rarely eschew,",
+    "a ring at last in Dallas in eleven, dues long due,",
+    "Stojaković, the marksman wing — Peja, the deep-ball crew."]},
+  {answer:"DeAndre Jordan", d:3, lines:[
+    "A high-rising Lob City center, alley-oops his art,",
+    "with Chris and Blake in Clipper red he'd throw the roof apart,",
+    "a poster on a Piston guard once tore the crowd apart,",
+    "his free throws often clanged, yet his lobs were off the chart,",
+    "Jordan, the lob-catching center — DeAndre, from the start."]},
+  {answer:"Rajon Rondo", d:3, lines:[
+    "A pass-first floor general with a court-vision rare,",
+    "the Celtics' young quarterback when the Big Three ruled the air,",
+    "triple-doubles by the dozen, a savant beyond compare,",
+    "two rings in two towns he'd gather, cerebral in his glare,",
+    "Rondo, the vision-first point guard — a playoff mind laid bare."]},
+  {answer:"Kyle Lowry", d:3, lines:[
+    "A stocky, tough-nosed point guard who'd take a charge with glee,",
+    "in Toronto's red he battled, the heart of a title spree,",
+    "a Villanova product, gritty as could be,",
+    "a champion in nineteen, then south to Miami's sea,",
+    "Lowry, the charge-taking guard — Kyle, tough as can be."]},
+  {answer:"Marc Gasol", d:3, lines:[
+    "A Spanish passing center, the younger of two,",
+    "in Memphis grit-and-grind he'd anchor, defense his to do,",
+    "a Defensive Player once crowned, his high-post vision true,",
+    "a ring in Toronto in nineteen, the title he'd pursue,",
+    "Gasol, the passing pivot — Marc, whom the Grizzlies knew."]},
+  {answer:"Jason Terry", d:3, lines:[
+    "\"The Jet,\" a bench-spark gunner with an airplane-arms parade,",
+    "he'd bomb the clutch threes late, a sixth man unafraid,",
+    "in Dallas blue in eleven a title he'd help made,",
+    "streaky, fearless, chirping, the big shots that he'd trade,",
+    "Terry, the jet-armed shooter — Jason, in the shade."]},
+  {answer:"Shawn Marion", d:3, lines:[
+    "\"The Matrix,\" a versatile freak with an ugly, working shot,",
+    "in Phoenix run-and-gun he'd fill the box score, quite a lot,",
+    "he'd guard all five and rebound, a stat-sheet-stuffing plot,",
+    "a ring in Dallas in eleven, LeBron he'd tie in knot,",
+    "Marion, the do-it-all wing — Shawn, the Matrix caught."]},
+  {answer:"Jamal Crawford", d:3, lines:[
+    "A shifty bench-scoring guard with a crossover cruel,",
+    "three times the Sixth Man honored, off the pine he'd rule,",
+    "four-point plays a specialty, he'd shake you like a fool,",
+    "he scored for two-plus decades, unguardable and cool,",
+    "Crawford, the sixth-man scorer — Jamal, a bucket jewel."]},
+  {answer:"Lou Williams", d:3, lines:[
+    "A microwave off the bench who'd heat up in a flash,",
+    "three times the Sixth Man honored, buckets in a dash,",
+    "\"Lemon Pepper Lou,\" a wing-spot legend, quick to cash,",
+    "he'd score in bunches late, a spark of instant flash,",
+    "Williams, the sixth-man scorer — Lou, the bench's stash."]},
+  {answer:"Tyson Chandler", d:3, lines:[
+    "A rim-running, lob-catching center, defense his true trade,",
+    "he anchored Dallas' title run, the paint a barricade,",
+    "a Defensive Player once was crowned, the effort never frayed,",
+    "prep-to-pro, he'd jump and dunk, the screens and rolls he made,",
+    "Chandler, the defensive center — Tyson, the paint's own blade."]},
+  {answer:"Serge Ibaka", d:3, lines:[
+    "A shot-swatting big from the Congo, blocks his early fame,",
+    "in Oklahoma's blue he'd protect, \"iBlaka\" his name,",
+    "he'd stretch his range in later years, a three-point aim,",
+    "a ring in Toronto in nineteen, a title he'd help claim,",
+    "Ibaka, the shot-blocking big — Serge, the paint he'd tame."]},
+  {answer:"Steven Adams", d:3, lines:[
+    "A burly Kiwi center with a mustache and a grin,",
+    "his bone-crushing screens would free the guards to spin,",
+    "in Oklahoma's blue he'd rebound, taking hits on the chin,",
+    "a gentle giant off the floor, all muscle within,",
+    "Adams, the screen-setting big — Steven, tough of skin."]},
+  {answer:"Joakim Noah", d:3, lines:[
+    "A ponytailed, screaming center, all energy and heart,",
+    "in Chicago red he'd anchor, defense his fiery art,",
+    "a Defensive Player once, a high-post passing part,",
+    "twice a college champ at Florida before his pro start,",
+    "Noah, the fiery pivot — Joakim, the hustle's chart."]},
+  {answer:"Andre Iguodala", d:3, lines:[
+    "A Finals MVP off the bench, a shock to the crowd,",
+    "he guarded LeBron in fifteen, the Warriors' answer, proud,",
+    "a slashing point-forward first in Philly, versatile, unbowed,",
+    "four rings in the Bay's dynasty, defense his cloud,",
+    "Iguodala, the two-way wing — Andre, the stopper avowed."]},
+  {answer:"Eric Gordon", d:3, lines:[
+    "A sturdy sharpshooting guard, from deep his living made,",
+    "in Houston red he'd space the floor, the corner threes he'd trade,",
+    "a three-point contest champion, his stroke rarely frayed,",
+    "through many teams he'd bomb away, a role that never swayed,",
+    "Gordon, the sharpshooting guard — Eric, the deep-ball trade."]},
+  {answer:"Kemba Walker", d:3, lines:[
+    "A quick and scoring point guard, \"Cardiac Kemba\" they'd cheer,",
+    "at UConn he hit a step-back once that sent a defender rear,",
+    "in Charlotte's teal he'd fill it up, a small-guard scoring gear,",
+    "an All-Star crossover artist, clutch when the moment's near,",
+    "Walker, the darting scorer — Kemba, cold and clear."]},
+  {answer:"Victor Oladipo", d:3, lines:[
+    "An athletic two-way guard who'd steal and rise and score,",
+    "in Indiana blue he blossomed, Most Improved's encore,",
+    "he'd lead the league in steals one year, a highlight to adore,",
+    "then injuries would clip his flight, the promise that he bore,",
+    "Oladipo, the two-way guard — Victor, robbed of more."]},
+  {answer:"John Wall", d:3, lines:[
+    "A blur of a point guard with the fastest of first steps,",
+    "a pre-game dance a ritual the Washington crowd accepts,",
+    "the number-one from Kentucky, whose speed the highlight kept,",
+    "then Achilles and a knee would steal the prime he'd swept,",
+    "Wall, the lightning point guard — John, whom the fates outstepped."]},
+  {answer:"Mike Conley", d:3, lines:[
+    "A steady, savvy point guard, grit-and-grind his creed,",
+    "in Memphis blue for years he'd run the show and lead,",
+    "long snubbed from All-Star honors, a pro who'd rarely cede,",
+    "from Ohio State he came, a floor-general's seed,",
+    "Conley, the steady point guard — Mike, whom teams would need."]},
+  {answer:"Goran Dragić", d:3, lines:[
+    "\"The Dragon,\" a fiery Slovene guard who'd knife the lane with flair,",
+    "in Phoenix purple he broke out, Most Improved to declare,",
+    "a lefty push and drive, the eurostep his lair,",
+    "a Finals run in Miami's bubble, veteran and rare,",
+    "Dragić, the driving point guard — Goran, the Dragon's glare."]},
+  {answer:"Ricky Rubio", d:3, lines:[
+    "A Spanish passing wizard with a flair for the assist,",
+    "in Minnesota's blue his no-look dimes would rarely miss,",
+    "his jumper drew some teasing, yet his vision none dismissed,",
+    "a World Cup MVP for Spain, a passer few resist,",
+    "Rubio, the passing maestro — Ricky, the dish's twist."]},
+  {answer:"Brandon Roy", d:3, lines:[
+    "A silky scoring guard whose future gleamed so bright,",
+    "in Portland's red and black he'd score and close the night,",
+    "a Rookie of the Year, clutch buckets his delight,",
+    "but cartilage-less knees cut short a career's rightful flight,",
+    "Roy, the smooth scoring guard — Brandon, robbed of light."]},
+  {answer:"Domantas Sabonis", d:3, lines:[
+    "A passing, rebounding big, the son of a Baltic great,",
+    "in Sacramento's purple he'd stack the double-doubles at a rate,",
+    "triple-doubles by the fistful, the high-post his estate,",
+    "from Gonzaga he arrived, a bruising, dishing weight,",
+    "Sabonis, the passing big — Domantas, the boards' own gate."]},
+  {answer:"Brandon Ingram", d:3, lines:[
+    "A long and slender scoring wing, from Duke his skills refined,",
+    "in New Orleans blue he'd rise and shoot, a smooth and lethal find,",
+    "Most Improved once honored, the mid-range well-designed,",
+    "an All-Star silky finisher, a scorer clean of mind,",
+    "Ingram, the lanky scorer — Brandon, smooth and lined."]},
+  {answer:"Kristaps Porziņģis", d:3, lines:[
+    "A seven-foot-three \"Unicorn\" who shoots and blocks with ease,",
+    "from Latvia he arrived, in New York booed then pleased,",
+    "he'd stretch the floor and swat the rim, a matchup none could seize,",
+    "a ring in Boston in twenty-four despite injury's freeze,",
+    "Porziņģis, the unicorn big — Kristaps, whom size frees."]},
+  {answer:"Brook Lopez", d:3, lines:[
+    "A shot-blocking seven-footer who learned to bomb the three,",
+    "\"Splash Mountain\" late in his career, a stretch-and-swat decree,",
+    "in Milwaukee green a title came in twenty-one with glee,",
+    "a Stanford twin, his brother Robin, durable and free,",
+    "Lopez, the block-and-splash big — Brook, from downtown, see."]},
+  {answer:"CJ McCollum", d:3, lines:[
+    "A silky scoring guard from tiny Lehigh's halls,",
+    "he upset Duke in March, a giant-slaying call,",
+    "in Portland's backcourt with Dame he'd fill it, standing tall,",
+    "a mid-range, three-point maestro who'd answer every call,",
+    "McCollum, the smooth scorer — CJ, past them all."]},
+  {answer:"Aaron Gordon", d:3, lines:[
+    "A high-flying forward robbed in dunk contests, they cried,",
+    "he leapt above a mascot once, the judges' scores denied,",
+    "in Denver's blue a title came in twenty-three with pride,",
+    "he'd guard the giants, dunk, defend, a two-way, unified,",
+    "Gordon, the leaping forward — Aaron, the dunk denied."]},
+  {answer:"Michael Porter Jr.", d:3, lines:[
+    "A sweet-shooting tall forward whose back had given fright,",
+    "he slid in the draft on health scares, a gamble teams found trite,",
+    "in Denver's blue he'd stretch the floor, the corner threes his right,",
+    "a ring in twenty-three, a marksman tall of height,",
+    "Porter, the shooting forward — Michael, a shooter's height."]},
+  {answer:"OG Anunoby", d:3, lines:[
+    "A switchy, strong-armed stopper who guards the toughest wing,",
+    "in Toronto's red a title came, in year two he'd earn a ring,",
+    "a three-and-D reliable, defense the song he'd sing,",
+    "then to the Knicks he'd bring his lockdown, an orange-and-blue thing,",
+    "Anunoby, the two-way wing — OG, defense's sting."]},
+  {answer:"Mikal Bridges", d:3, lines:[
+    "An iron-man who never missed, a games-played streak of pride,",
+    "from Villanova's champions his two-way game he'd guide,",
+    "a three-and-D dependable, long arms spread out wide,",
+    "through Phoenix, Brooklyn, then the Knicks, a workhorse bona fide,",
+    "Bridges, the durable wing — Mikal, never denied."]},
+  {answer:"Tyrese Maxey", d:3, lines:[
+    "A blur of a scoring guard with a smile the whole crowd knows,",
+    "in Philly's red he'd blaze and score, from deep the buckets flow,",
+    "from Kentucky he arrived, Most Improved to show,",
+    "quick and relentless, a two-way spark that grows,",
+    "Maxey, the speedy scorer — Tyrese, whose motor glows."]},
+  {answer:"Cade Cunningham", d:3, lines:[
+    "A big and smooth-passing point, the number-one of his year,",
+    "in Detroit's blue he'd shoulder the rebuild's long frontier,",
+    "from Oklahoma State he came, a floor-general's career,",
+    "he'd score and dish at size, the Pistons' hope made clear,",
+    "Cunningham, the big point guard — Cade, the future near."]},
+  {answer:"Evan Mobley", d:3, lines:[
+    "A lanky, switchy big man whose defense holds the paint,",
+    "in Cleveland's wine and gold he'd block and guard without complaint,",
+    "a Defensive Player crowned, his footwork rarely faint,",
+    "from USC he came, a modern big to acquaint,",
+    "Mobley, the two-way center — Evan, defense's saint."]},
+  {answer:"Jalen Green", d:3, lines:[
+    "An explosive scoring guard who skipped the college route,",
+    "in Houston red he'd rise and dunk, athletic without doubt,",
+    "the G-League Ignite path he took, a new way to break out,",
+    "streaky, springy, fearless, the highlights he'd tout,",
+    "Green, the leaping scorer — Jalen, hops throughout."]},
+  {answer:"Franz Wagner", d:3, lines:[
+    "A versatile German wing, from Michigan he came,",
+    "in Orlando's blue he'd score and defend, a two-way frame,",
+    "a World Cup gold for Germany, a champion's acclaim,",
+    "smooth off the drive and crafty, a rising scoring name,",
+    "Wagner, the two-way wing — Franz, the German flame."]},
+  {answer:"Amen Thompson", d:3, lines:[
+    "One of athletic twins who leapt straight from a new-age league,",
+    "in Houston red he'd guard and soar, a defensive intrigue,",
+    "long, explosive, raw, and rising, relentless without fatigue,",
+    "the Overtime Elite path chosen, a novel-route colleague,",
+    "Thompson, the two-way twin — Amen, athletic blitzkrieg."]},
+  {answer:"Ausar Thompson", d:3, lines:[
+    "The other of two twins who bypassed the college scene,",
+    "in Detroit's blue he'd defend and leap, disruptive and lean,",
+    "long-armed and springy, blocks and steals, a stat-sheet machine,",
+    "from Overtime Elite he rose, a two-way evergreen,",
+    "Thompson, the two-way twin — Ausar, defense's sheen."]},
+  {answer:"Jalen Williams", d:3, lines:[
+    "\"J-Dub,\" a smooth two-way wing on the Thunder's rising crew,",
+    "in Oklahoma's blue he'd score and defend, versatile and true,",
+    "from little Santa Clara he came, a second-star debut,",
+    "a champion in twenty-five, the buckets that he threw,",
+    "Williams, the two-way wing — Jalen, the Thunder's hue."]},
+  {answer:"Jaren Jackson Jr.", d:3, lines:[
+    "A shot-blocking stretch-big, \"Block Panther\" his cry,",
+    "in Memphis blue he'd swat and shoot, the threes from the sky,",
+    "a Defensive Player once crowned, the rim he'd deny,",
+    "from Michigan State he came, a modern big to spy,",
+    "Jackson, the block-and-stretch big — Jaren, shots gone awry."]},
+  {answer:"Bol Bol", d:3, lines:[
+    "A seven-foot-plus wonder, the son of a legend tall,",
+    "he'd dribble like a guard and shoot, improbable for all,",
+    "a wingspan wide as fable, a cult-hero standing tall,",
+    "his father blocked and towered too, a lineage of the wall,",
+    "Bol, the sky-scraping novelty — Bol, whose length enthralls."]},
+  {answer:"Tacko Fall", d:3, lines:[
+    "At seven-foot-six he towered, among the tallest to play,",
+    "in Boston green a cult grew loud, the crowd would chant and sway,",
+    "from UCF he arrived, a gentle giant's way,",
+    "he'd dunk while barely leaping, the rim in reach each day,",
+    "Fall, the towering novelty — Tacko, who blocked the day."]},
+  {answer:"Boban Marjanović", d:3, lines:[
+    "A seven-foot-four Serbian with enormous, famous hands,",
+    "his palms would swallow basketballs, a giant's gentle brands,",
+    "a bench-mob cult-hero, beloved across the lands,",
+    "he'd dominate in spot minutes, towering where he stands,",
+    "Marjanović, the giant novelty — Boban, whom love expands."]},
+  {answer:"Brian Scalabrine", d:3, lines:[
+    "The \"White Mamba,\" a benchwarmer whom the crowd adored,",
+    "he'd rarely play yet won a ring, big cheers when he was poured,",
+    "a cult-hero role-player, self-aware and never bored,",
+    "\"you're closer to me than to LeBron,\" the challengers he floored,",
+    "Scalabrine, the bench-mob legend — Brian, whom fans encored."]},
+  {answer:"Jimmer Fredette", d:3, lines:[
+    "\"Jimmermania\" swept the land when he lit the college nets,",
+    "at BYU he'd bomb from range, deep logo threes, no regrets,",
+    "a college scoring phenom whose pro fame the record forgets,",
+    "he'd shine abroad and three-on-three, a marksman's later bets,",
+    "Fredette, the bombing shooter — Jimmer, whom range abets."]},
+  {answer:"Udonis Haslem", d:3, lines:[
+    "An undrafted Miami lifer, an enforcer tried and true,",
+    "in Heat red for two decades, the toughness that he'd brew,",
+    "three rings he'd gather quietly, a locker-room glue,",
+    "from Florida's Gators he came, loyal through and through,",
+    "Haslem, the Heat's iron heart — UD, the lifer crew."]},
+  {answer:"JJ Redick", d:3, lines:[
+    "A Duke-bred sharpshooter whom rival crowds would jeer,",
+    "he'd curl off screens and drain the three, a marksman's long career,",
+    "a movement-shooting specialist, unhurried and sincere,",
+    "he'd later coach and podcast, his voice both sharp and clear,",
+    "Redick, the sharpshooting wing — JJ, from far and near."]},
+  {answer:"Jamal Mashburn", d:3, lines:[
+    "\"Monster Mash,\" a scoring forward, smooth and strong of frame,",
+    "in Dallas, Miami, Charlotte, he'd fill it all the same,",
+    "from Kentucky he arrived, a bucket-getter's name,",
+    "a savvy business mogul later, wealth beyond the game,",
+    "Mashburn, the scoring forward — Jamal, a scorer's flame."]},
+  {answer:"Chris Mullin", d:3, lines:[
+    "A sweet left-handed shooter with a stroke of pure repose,",
+    "part of \"Run TMC\" in the Bay, where the fast break arose,",
+    "from St. John's in New York, a gym-rat few oppose,",
+    "a Dream Teamer, a marksman, whose comeback story rose,",
+    "Mullin, the lefty shooter — Chris, whom the corner chose."]},
+  {answer:"Nikola Vučević", d:3, lines:[
+    "A Montenegrin center, from USC he came,",
+    "in Orlando's pinstripes double-doubles built his name,",
+    "two All-Star nods he gathered, soft touch his steady claim,",
+    "then to Chicago's baseline, the numbers much the same,",
+    "Vučević, the skilled pivot — Vooch, of quiet fame."]},
+  {answer:"Miles Bridges", d:3, lines:[
+    "A bouncy forward out of Michigan State's green halls,",
+    "his windmills and his putbacks would shake the Hornets' walls,",
+    "in Charlotte teal he'd fill the lane on Ball-to-Bridges calls,",
+    "a scoring leap, a highlight reel, above the rim he brawls,",
+    "Bridges, the springing forward — Miles above them all."]},
+  {answer:"Desmond Bane", d:3, lines:[
+    "The last pick of a first round, from TCU he'd fall,",
+    "short arms they said, yet his jumper proved the purest of them all,",
+    "in grit-and-grind blue with Ja he'd rise and never stall,",
+    "then dealt to Orlando's wing for a haul beyond recall,",
+    "Bane, the sharpshooting guard — a steal they'd all miscall."]},
+  {answer:"Alex Caruso", d:3, lines:[
+    "A balding cult-hero guard the Laker faithful adored,",
+    "undrafted from Texas A&M, a ring in the bubble scored,",
+    "the Bulls then prized his lockdown, All-Defense twice restored,",
+    "dealt for a young Australian, in the Thunder's title horde,",
+    "Caruso, the defensive ace — the Bald Mamba aboard."]},
+  {answer:"Josh Hart", d:3, lines:[
+    "A Villanova champion who rebounds like a big,",
+    "he'd play all forty-eight if asked, and never break his rig,",
+    "triple-doubles as a guard-sized forward, boards his favorite gig,",
+    "the Garden loves his motor, the Nova-Knicks' own sprig,",
+    "Hart, the everything wing — hustle's thriving twig."]},
+  {answer:"Fred VanVleet", d:3, lines:[
+    "Undrafted out of Wichita, he bet it all on himself,",
+    "\"Bet on Yourself\" became the brand he took down from the shelf,",
+    "a champion up in Toronto, big shots his hidden wealth,",
+    "then Houston's floor general, steadying the young in stealth,",
+    "VanVleet, the undrafted point — grit compounding wealth."]},
+  {answer:"Jarrett Allen", d:3, lines:[
+    "A soft-spoken shot-blocker with a glorious rounded fro,",
+    "from Texas via Brooklyn to the wine-and-gold he'd go,",
+    "an All-Star anchor in the paint where drivers fear to flow,",
+    "with Mobley twinned in Cleveland, a wall few pass below,",
+    "Allen, the fro-crowned center — the rim's polite no."]},
+  {answer:"Darius Garland", d:3, lines:[
+    "A silky handle out of Vanderbilt, though his stay was brief,",
+    "in Cleveland's backcourt his shake-and-bake gives defenders grief,",
+    "an All-Star floor general, the step-back three his leaf,",
+    "with Mitchell paired he steers the wine-and-gold's belief,",
+    "Garland, the smooth conductor — a handle past belief."]},
+  {answer:"Jabari Smith Jr.", d:3, lines:[
+    "An Auburn stretch-four taken third, the twenty-twenty-two class,",
+    "his father wore the league's own jerseys, lineage of the glass,",
+    "in Houston red he spaces floors, a tall and smooth-shot mass,",
+    "young pillar of a rising core, his jumper high-arced brass,",
+    "Smith, the towering shooter — Jabari, second-pass."]},
+  {answer:"Moritz Wagner", d:3, lines:[
+    "A German big of boundless bounce, Michigan's title-game run,",
+    "the older of two brothers on the same Orlando run,",
+    "off the bench he barrels hard, chaos spun as fun,",
+    "a torn-up knee would test the joy, yet dimmed it not a ton,",
+    "Wagner, the energy center — Moe, the louder one."]},
+  {answer:"Brandon Miller", d:3, lines:[
+    "An Alabama wing drafted second in twenty-twenty-three,",
+    "chosen just ahead of the Ignite's scoring prodigy,",
+    "in Charlotte teal his smooth pull-up flows effortlessly,",
+    "a franchise wing beside LaMelo, the future's guarantee,",
+    "Miller, the silky shooter — Brandon, buckets three."]},
+  {answer:"Scoot Henderson", d:3, lines:[
+    "He skipped the college route, the Ignite his proving ground,",
+    "drafted third in twenty-three, in Portland's rebuild found,",
+    "explosive burst and downhill drive, a pit-bull frame compound,",
+    "he learns the point-guard craft where Dame was once renowned,",
+    "Henderson, the bulldog guard — Scoot, the rising sound."]},
+  {answer:"Devin Vassell", d:3, lines:[
+    "A Florida State two-way wing with a feathery midrange,",
+    "in silver-black he grew while the franchise sought its change,",
+    "a big extension signed before the Frenchman's full exchange,",
+    "smooth pull-ups and quiet buckets across the Spurs' new range,",
+    "Vassell, the scoring wing — Devin, in Wemby's grange."]},
+  {answer:"Walker Kessler", d:3, lines:[
+    "An Auburn tower dealt away in a Frenchman's mega-trade,",
+    "in Utah's paint he swats them all, a rim-protecting blade,",
+    "among the league's top shot-block rates his rookie season made,",
+    "a lob-catch and put-back big, the Jazz's wall arrayed,",
+    "Kessler, the swatting center — Walker, the drives dissuade."]},
+  {answer:"Keyonte George", d:3, lines:[
+    "A Baylor combo guard with a bag of scoring flair,",
+    "in Utah's youth movement he fires without a care,",
+    "deep pull-ups and slick handles, a bucket-getter's air,",
+    "the Jazz's rebuild runs through his shot-making repair,",
+    "George, the young gunner — Keyonte, buckets to spare."]},
+  {answer:"Immanuel Quickley", d:3, lines:[
+    "A Kentucky microwave who warmed the Garden's bench,",
+    "his floater and his deep-range pull carved out a sixth-man trench,",
+    "then dealt up north in the RJ swap, a payday he would clench,",
+    "a starting point in Toronto, the reins his to wrench,",
+    "Quickley, the pull-up specialist — IQ, the scoring wrench."]},
+  {answer:"RJ Barrett", d:3, lines:[
+    "A Canadian prodigy at Duke beside a famous friend,",
+    "drafted third to Broadway where the hopes would never end,",
+    "the Maple Mamba grinded, though the threes would not extend,",
+    "then traded home to Toronto, a full-circle blend,",
+    "Barrett, the driving wing — RJ, the homeward trend."]},
+  {answer:"Jakob Poeltl", d:3, lines:[
+    "The first Austrian to reach the league, from Utah's college scheme,",
+    "a screen-and-dive, soft-touch big on the Raptors' team,",
+    "dealt to San Antonio and back, a rim-protecting theme,",
+    "no threes, all craft, a throwback big in a modern scheme,",
+    "Poeltl, the Austrian anchor — Jak, the paint's regime."]},
+  {answer:"Terry Rozier", d:3, lines:[
+    "\"Scary Terry\" rose in Boston when a star point guard went down,",
+    "a conference-finals run in eighteen won the cult a crown,",
+    "from Louisville he came, in Charlotte scored renown,",
+    "then to Miami's backcourt, his shot still going downtown,",
+    "Rozier, the fearless guard — Terry, the playoff clown-crown."]},
+  {answer:"Malcolm Brogdon", d:3, lines:[
+    "\"The President\" from Virginia, a scholar's steady hand,",
+    "Rookie of the Year in Milwaukee, second-round demand,",
+    "a fifty-forty-ninety year placed him in rare command,",
+    "Sixth Man of the Year in Boston, professional and planned,",
+    "Brogdon, the polished guard — Malcolm, poised and grand."]},
+  {answer:"Buddy Hield", d:3, lines:[
+    "From Bahamian sands to Oklahoma, college player of the year,",
+    "\"Buddy Buckets\" they anointed him, the stroke without a peer,",
+    "in Sacramento's purple his threes would rain sincere,",
+    "a journeyman sniper since, the arc his lone frontier,",
+    "Hield, the deep-ball gunner — Buddy, buckets clear."]},
+  {answer:"Bojan Bogdanović", d:3, lines:[
+    "A Croatian sharpshooting forward, from Mostar's war-torn ground,",
+    "in Indiana and Utah his catch-and-shoot renowned,",
+    "he'd hang thirty on a quiet night without a hint of sound,",
+    "not to be confused with the Serbian whose surname is the same compound,",
+    "Bogdanović, the Croatian wing — Bojan, threes abound."]},
+  {answer:"Bogdan Bogdanović", d:3, lines:[
+    "A Serbian sharpshooter, \"Bogi\" to the crowd,",
+    "in Sacramento first he shone, then Atlanta's sixth-man shroud,",
+    "for Serbia's national side his leadership is loud,",
+    "not the Croatian forward with whom his name is ploughed,",
+    "Bogdanović, the Serbian guard — Bogdan, EuroBasket proud."]},
+  {answer:"Harrison Barnes", d:3, lines:[
+    "A North Carolina wing on a seventy-three-win team,",
+    "a champion in fifteen with the Splash-and-run regime,",
+    "an iron man for years, consecutive games his theme,",
+    "in Sacramento and San Antonio, the pro's-pro's quiet esteem,",
+    "Barnes, the steady forward — Harrison, the veteran beam."]},
+  {answer:"Clint Capela", d:3, lines:[
+    "From Switzerland he came, a lob's most eager friend,",
+    "with Harden's pocket passes the rim he would descend,",
+    "in Houston's small-ball engine, the dunker's-spot godsend,",
+    "then Atlanta's glass he ruled, boards his dividend,",
+    "Capela, the alley-oop center — Clint, the lob's dead end."]},
+  {answer:"Myles Turner", d:3, lines:[
+    "A Texas stretch-five swatting shots then stepping out for three,",
+    "he led the league in blocks twice with Indiana's marquee,",
+    "a decade as a Pacer, the franchise's stretchy key,",
+    "then to a rival's green he jumped, a shocking July decree,",
+    "Turner, the block-and-bomb big — Myles, the modern spree."]},
+  {answer:"Anfernee Simons", d:3, lines:[
+    "Straight from an academy prep year, no college on his sheet,",
+    "he learned in Dame's long shadow on Portland's scoring seat,",
+    "a dunk-contest crown, then forty-plus nights replete,",
+    "a smooth deep pull-up specialist, the microwave's own heat,",
+    "Simons, the scoring guard — Anfernee, threes on repeat."]},
+  {answer:"Lonzo Ball", d:3, lines:[
+    "A UCLA floor general, his father's loudest boast,",
+    "drafted second by the Lakers, a triple-double ghost,",
+    "the jumper was rebuilt, his vision still the toast,",
+    "a thousand days of knee despair, then back — a comeback post,",
+    "Ball, the eldest brother — Lonzo, passing coast to coast."]},
+  {answer:"Josh Giddey", d:3, lines:[
+    "An Aussie teen with vision, triple-doubles at nineteen,",
+    "in Thunder blue he learned the league, the youngest on the scene,",
+    "then swapped for a defensive pest to Chicago's routine,",
+    "where big triple-double months revived the hype machine,",
+    "Giddey, the tall playmaker — Josh, from Melbourne's green."]},
+  {answer:"Jonathan Kuminga", d:3, lines:[
+    "From Congo through the Ignite, a leap-first forward raw,",
+    "a ring in twenty-two while learning Golden State's law,",
+    "explosive to the rim, the break his favorite draw,",
+    "patience and potential wrestling in every flaw,",
+    "Kuminga, the athletic forward — Jonathan, spring and awe."]},
+  {answer:"Andrew Nembhard", d:3, lines:[
+    "A Gonzaga point guard, Canadian and calm,",
+    "a second-rounder proving playoff nerves are just a psalm,",
+    "he hounded stars in the twenty-five run with a stopper's palm,",
+    "big Finals nights from nowhere, the Pacers' steady balm,",
+    "Nembhard, the poised two-way guard — Andrew, cool as calm."]},
+  {answer:"Herb Jones", d:3, lines:[
+    "\"Not on Herb,\" the saying goes when scorers come his way,",
+    "an Alabama stopper, All-Defense on display,",
+    "in New Orleans' wing rotation he dims the brightest play,",
+    "long arms and quiet menace, the assignment none would pray,",
+    "Jones, the lockdown forward — Herb, the scorer's gray."]},
+  {answer:"Trey Murphy III", d:3, lines:[
+    "A Virginia wing who bombs from deep and hammers home the lob,",
+    "a forty-plus-percent sniper with a dunk-contest job,",
+    "in New Orleans' wing corps he does the two-way job,",
+    "the smoothest vertical sniper in the Pelicans' squad mob,",
+    "Murphy, the three-and-fly wing — Trey, the corner's throb."]},
+  {answer:"Derrick White", d:3, lines:[
+    "From Division Two beginnings to Colorado's rise,",
+    "a late-bloom Spurs selection with defense in his eyes,",
+    "in Boston green he blocks the shots that guards should never prize,",
+    "a tooth flew out in the Finals run — a champion's sacrifice,",
+    "White, the late-blooming guard — Derrick, the underdog's prize."]},
+  {answer:"Payton Pritchard", d:3, lines:[
+    "An Oregon gym rat launching from the logo's paint,",
+    "half-court heaves at buzzers, a specialty most quaint,",
+    "a ring in twenty-four, then Sixth Man's crowned acquaint,",
+    "in Boston green his deep-range fire shows no restraint,",
+    "Pritchard, the heat-check guard — Payton, without complaint."]},
+  {answer:"Naz Reid", d:3, lines:[
+    "An undrafted LSU big who built a cult in snow,",
+    "\"Naz Reid.\" — two words, a tattoo creed the faithful show,",
+    "Sixth Man of the Year, his handle smooth, his range aglow,",
+    "behind the Wolves' twin towers he's the joy they undergo,",
+    "Reid, the folk-hero big — Naz, the cult's tableau."]},
+  {answer:"Cam Thomas", d:3, lines:[
+    "An LSU flamethrower, buckets all he's known,",
+    "forty-point eruptions off the bench in Brooklyn shown,",
+    "\"a lot of one-on-one\" his craft, the iso his own throne,",
+    "the purest scoring instinct that the Nets have grown,",
+    "Thomas, the microwave guard — Cam, the scoring zone."]},
+  {answer:"Mark Williams", d:3, lines:[
+    "A Duke seven-footer catching lobs above the square,",
+    "in Charlotte's paint he dunked and swatted, health his lone despair,",
+    "a trade to Hollywood collapsed — rescinded in mid-air,",
+    "a rare unwinding that became the season's strange affair,",
+    "Williams, the lob-catch center — Mark, the deal that wasn't there."]},
+  {answer:"Keldon Johnson", d:3, lines:[
+    "A Kentucky bull who barrels shoulder-first through the lane,",
+    "an Olympic gold in Tokyo, a call-up's happy gain,",
+    "in silver-black he brought the force through a rebuild's rain,",
+    "the energy uncle to the French phenom's reign,",
+    "Johnson, the downhill wing — Keldon, full-throttle strain."]},
+  {answer:"Keegan Murray", d:3, lines:[
+    "An Iowa forward drafted fourth in twenty-twenty-two,",
+    "a rookie record pace of threes in Sacramento's hue,",
+    "the quiet two-way corner man while the beam-light flew,",
+    "his twin brother plays the league as well — a family two,",
+    "Murray, the low-usage sniper — Keegan, calm and true."]},
+  {answer:"Bennedict Mathurin", d:3, lines:[
+    "From Montreal through Arizona, a scoring wing of pride,",
+    "he vowed no king was owed his awe — a rookie's bold aside,",
+    "in Indiana's up-tempo his buckets amplified,",
+    "a Finals run in twenty-five with him along the ride,",
+    "Mathurin, the fearless scorer — Bennedict, dignified."]},
+  {answer:"Obi Toppin", d:3, lines:[
+    "A Dayton player of the year with pogo-stick-like spring,",
+    "a dunk-contest crown at the Garden, the windmill his thing,",
+    "behind a star at Broadway he barely got to wing,",
+    "then Indiana freed him — transition dunks took wing,",
+    "Toppin, the flying forward — Obi, on the wing."]},
+  {answer:"Jalen Suggs", d:3, lines:[
+    "A Gonzaga buzzer-beater from beyond the center line,",
+    "a Final Four forever-clip, the banked-in shot divine,",
+    "in Orlando blue he clamps the guards, All-Defense his design,",
+    "a two-sport star who chose the court over the gridiron's line,",
+    "Suggs, the lockdown guard — Jalen, the bank-shot sign."]},
+  {answer:"Cole Anthony", d:3, lines:[
+    "The son of a UNC point guard who called games on TV,",
+    "he followed to Chapel Hill, then Orlando's marquee,",
+    "a sixth-man spark of pull-up threes and rim-attacking spree,",
+    "emotional and fearless, the Magic's live-wire key,",
+    "Anthony, the spark-plug guard — Cole, the legacy."]},
+  {answer:"Wendell Carter Jr.", d:3, lines:[
+    "A Duke big man drafted high into Chicago's plan,",
+    "then flipped to Orlando where his game found its span,",
+    "a bruising, brainy center, the glass his daily clan,",
+    "the anchor as the Magic's youth movement began,",
+    "Carter, the sturdy pivot — Wendell, the steady man."]},
+  {answer:"Kyle Kuzma", d:3, lines:[
+    "From Flint through Utah's program, a Laker draft-night find,",
+    "a ring in the bubble season, third option well-defined,",
+    "a giant pink sleeved sweater left the fashion world behind,",
+    "then Washington's leading scorer, Bucks trade later signed,",
+    "Kuzma, the scoring forward — Kuz, the meme-enshrined."]},
+  {answer:"Jordan Clarkson", d:3, lines:[
+    "A Filipino-American bucket off the bench,",
+    "from Missouri to the Lakers, then Utah's scoring trench,",
+    "Sixth Man of the Year in twenty-one, the drought he'd quench,",
+    "for the Philippines he suited up, a heritage to clench,",
+    "Clarkson, the sixth-man scorer — Jordan, the bench's wrench."]},
+  {answer:"Donte DiVincenzo", d:3, lines:[
+    "A Villanova champion twice, the Big Ragu his name,",
+    "the title-game's MOP performance carved his college fame,",
+    "a ring with the Bucks in twenty-one, then Garden threes became,",
+    "the Nova-Knicks reunion, then Minnesota's frame,",
+    "DiVincenzo, the sharpshooting guard — Donte, the Italian flame."]},
+  {answer:"Christian Braun", d:3, lines:[
+    "A Kansas title one spring, an NBA crown the next,",
+    "back-to-back championships across two different texts,",
+    "in Denver's wing rotation his sprinting motor flexed,",
+    "a leap into the starting five, the corner-three annexed,",
+    "Braun, the two-title wing — Christian, the winning context."]},
+  {answer:"Bruce Brown", d:3, lines:[
+    "A do-it-all from Miami's school, position: everything,",
+    "in Brooklyn's small-ball engine he'd screen and dive and swing,",
+    "a folk hero of the twenty-three Nuggets' title spring,",
+    "then paid in Indiana, the ring his proudest bling,",
+    "Brown, the Swiss-army guard — Bruce, the champion's string."]},
+  {answer:"Robert Williams III", d:3, lines:[
+    "\"Time Lord\" from Texas A&M, the block his favorite spell,",
+    "lob thrown anywhere near the square, he'll finish it as well,",
+    "in Boston's switching schemes his goggles-swats would swell,",
+    "the knees, alas, kept ringing time's own bitter bell,",
+    "Williams, the rim-guarding leaper — Rob, the Time Lord's knell."]},
+  {answer:"Kelly Oubre Jr.", d:3, lines:[
+    "\"Tsunami Papi,\" waves of buckets crash upon the shore,",
+    "from Kansas through the Wizards, the journeyman's long tour,",
+    "in Philadelphia's wing rotation he found a steady door,",
+    "flair, tattoos, and fearless drives — the aesthetic's core,",
+    "Oubre, the stylish slasher — Kelly, waves galore."]},
+  {answer:"Norman Powell", d:3, lines:[
+    "\"Understand the grind\" — his mantra from the UCLA days,",
+    "a champion in Toronto in the nineteen title blaze,",
+    "from bench role into twenty-a-night, the late-bloom scorer's phase,",
+    "an All-Star-level season with the Clippers earned the praise,",
+    "Powell, the grown-man scorer — Norm, the grind that pays."]},
+  {answer:"PJ Washington", d:3, lines:[
+    "A Kentucky forward years adrift on Charlotte's rebuild sea,",
+    "then traded into Dallas for a Finals odyssey,",
+    "two free throws at the buzzer sank the Thunder's guarantee,",
+    "a corner three-and-D four with playoff pedigree,",
+    "Washington, the versatile forward — PJ, clutch as can be."]},
+  {answer:"Dereck Lively II", d:3, lines:[
+    "A Duke rim-runner drafted into Dallas' title chase,",
+    "a rookie in the Finals setting screens with veteran grace,",
+    "his mother's fight, his own lost year — resilience in his base,",
+    "the lob-catch, block-shot future of the Mavericks' place,",
+    "Lively, the springy center — Dereck, the rookie ace."]},
+  {answer:"Cam Whitmore", d:3, lines:[
+    "A Villanova freshman projected top-five in the spring,",
+    "draft night kept him waiting — twentieth, the slide's cruel sting,",
+    "in Houston's crowded wing corps his scoring still would sing,",
+    "then Washington unleashed the bounce and downhill everything,",
+    "Whitmore, the powerful wing — Cam, the fallen-riser's wing."]},
+  {answer:"Dalton Knecht", d:3, lines:[
+    "A twenty-three-year-old rookie, Tennessee's scoring pride,",
+    "he slid to seventeen where purple-gold would bide,",
+    "a thirty-seven-point eruption early in his ride,",
+    "then a trade rescinded brought him back — a strange homecoming tide,",
+    "Knecht, the sharpshooting rookie — Dalton, the deal denied."]},
+  {answer:"Reed Sheppard", d:3, lines:[
+    "His father won at Kentucky, a nineties Wildcat great,",
+    "the son shot forty-plus from deep, the third pick's freight,",
+    "in Houston's guard rotation he learned the patient wait,",
+    "a pickpocket with deep-range touch, the analytics' bait,",
+    "Sheppard, the bloodline sniper — Reed, the legacy's slate."]},
+  {answer:"Ron Holland", d:3, lines:[
+    "The Ignite's final prospect when the program closed its door,",
+    "drafted fifth into Detroit's young rebuilding corps,",
+    "a downhill slashing forward with a motor at his core,",
+    "the jumper is the project, the effort's never poor,",
+    "Holland, the raw-energy wing — Ron, the Ignite's encore."]},
+  {answer:"Zach Edey", d:3, lines:[
+    "A seven-four Canadian, twice college player of the year,",
+    "at Purdue he was a mountain no defense could sheer,",
+    "drafted ninth to Memphis where the grit-and-grind is dear,",
+    "a screen the size of Ontario, the paint his own frontier,",
+    "Edey, the towering center — Zach, the biggest here."]},
+  {answer:"Donovan Clingan", d:3, lines:[
+    "A UConn double-champion, the anchor of both runs,",
+    "two titles in two seasons, banners hung in tons,",
+    "drafted seventh to the Blazers as the future's paint-bound sons,",
+    "a wall of blocks and rebounds when the opposition runs,",
+    "Clingan, the two-time champ — Donovan, the rim that shuns."]},
+  {answer:"Rob Dillingham", d:3, lines:[
+    "A Kentucky microwave, slight of frame, quick as light,",
+    "Minnesota traded up to grab his spark-plug might,",
+    "behind the franchise's engines he waits to earn the night,",
+    "shifty, fearless, tiny — the bag alight,",
+    "Dillingham, the darting guard — Rob, the future's sprite."]},
+  {answer:"Stephon Castle", d:3, lines:[
+    "A UConn champion freshman, defense already grown,",
+    "drafted fourth to San Antonio beside the tallest cornerstone,",
+    "Rookie of the Year he captured, the trophy's newest throne,",
+    "a downhill two-way guard the Spurs can call their own,",
+    "Castle, the two-way rookie — Stephon, the crown his own."]},
+  {answer:"Ace Bailey", d:3, lines:[
+    "A Rutgers scoring prodigy with a rocket in his rise,",
+    "pre-draft he skipped the workouts — agents' games and spies,",
+    "the Jazz still called at five, ignoring the disguise,",
+    "a shot-making tall wing with lottery-sized highs,",
+    "Bailey, the smooth-shooting rookie — Ace, the wild card's prize."]},
+  {answer:"Dylan Harper", d:3, lines:[
+    "His father won five rings beside the greatest of all time,",
+    "at Rutgers he ran point beside another lottery climb,",
+    "drafted second by the Spurs in the post-Wemby prime,",
+    "a downhill lefty creator built for the two-man chime,",
+    "Harper, the legacy guard — Dylan, the second's rhyme."]},
+  {answer:"Collin Sexton", d:3, lines:[
+    "\"The Young Bull\" out of Alabama, downhill all the way,",
+    "in Cleveland's rebuild years he'd score but rarely sway,",
+    "a twenty-four-a-night season the trade winds swept away,",
+    "in Utah then elsewhere, the motor stays in play,",
+    "Sexton, the charging guard — Collin, full-speed's display."]},
+  {answer:"John Collins", d:3, lines:[
+    "A Wake Forest bouncy four who lived above the square,",
+    "in Atlanta's rise he rolled to lobs with flying flair,",
+    "\"they'd fly him to the moon\" — his hops beyond compare,",
+    "then Utah's stretch experiment, still hammering the air,",
+    "Collins, the lob-catch forward — John, the vertical heir."]},
+  {answer:"Malik Monk", d:3, lines:[
+    "A Kentucky flamethrower who took the longest road,",
+    "from Charlotte's fringes to the Lakers' microwave mode,",
+    "then Sacramento paid the spark, the sixth-man's episode,",
+    "behind-the-back to lob — his passing also glowed,",
+    "Monk, the instant offense — Malik, the bench's ode."]},
+  {answer:"Kevin Huerter", d:3, lines:[
+    "\"Red Velvet,\" a Maryland sniper smooth of stroke and hair,",
+    "in Atlanta's run to the conference finals he was there,",
+    "then Sacramento's beam-lit nights, the movement-shooting flair,",
+    "a catch-and-fire wing whose range bends the defense's care,",
+    "Huerter, the crimson shooter — Kevin, the velvet air."]},
+  {answer:"Coby White", d:3, lines:[
+    "A UNC blur with buckets in his sprint,",
+    "in Chicago patience paid — the breakout's brightest glint,",
+    "from combo-guard confusion to a lead guard's print,",
+    "deep pull-ups in transition, the bag without a hint,",
+    "White, the accelerating guard — Coby, the scoring sprint."]},
+  {answer:"Ayo Dosunmu", d:3, lines:[
+    "A Chicago kid from Illinois who stayed to wear the red,",
+    "a second-rounder outplaying where the lottery names led,",
+    "two-way guard with a motor, hometown pride widespread,",
+    "the Bulls' own local success story, homegrown and bred,",
+    "Dosunmu, the hometown guard — Ayo, the city's thread."]},
+  {answer:"Patrick Williams", d:3, lines:[
+    "A Florida State forward drafted fourth in twenty's class,",
+    "in Chicago's frontcourt his tools outpaced his brass,",
+    "two-way flashes, patient growth, potential's looking-glass,",
+    "the breakout stayed a rumor, the contract came to pass,",
+    "Williams, the toolsy forward — Patrick, the promise's mass."]},
+  {answer:"Max Strus", d:3, lines:[
+    "From DePaul, undrafted, cut, then two-way ground he'd claw,",
+    "in Miami's shooter factory he found the culture's law,",
+    "a Finals starter bombing threes without a flaw,",
+    "then Cleveland paid the movement man the market never saw,",
+    "Strus, the undrafted sniper — Max, the culture's draw."]},
+  {answer:"Sam Hauser", d:3, lines:[
+    "A Virginia transfer marksman with the quietest release,",
+    "in Boston's championship machine his corner threes don't cease,",
+    "a specialist's specialist, the spacing's silent lease,",
+    "a ring in twenty-four, the bench's sharpshooting peace,",
+    "Hauser, the catch-shoot forward — Sam, the arc's caprice."]},
+  {answer:"Nic Claxton", d:3, lines:[
+    "A Georgia big who switches one through five with ease,",
+    "in Brooklyn's paint he blocks and dunks, all knees and elbows' squeeze,",
+    "the league's top field-goal clip one year, all rim, no threes,",
+    "the Nets' defensive backbone through the rebuild's freeze,",
+    "Claxton, the switchable center — Nic, the paint's trapeze."]},
+  {answer:"Cam Johnson", d:3, lines:[
+    "A UNC sniper drafted to the desert's spacing plan,",
+    "a Finals run in twenty-one as Phoenix's corner man,",
+    "then Brooklyn made him featured, a smooth-shot artisan,",
+    "dealt onward for a forward in a Denver caravan,",
+    "Johnson, the flamethrowing forward — Cam, the catch-shoot clan."]},
+  {answer:"Dennis Schröder", d:3, lines:[
+    "From Braunschweig, Germany, a blur with hair of gold-dipped tips,",
+    "a dozen NBA cities stamped across his trips,",
+    "the World Cup MVP in twenty-three — gold on German lips,",
+    "a sixth-man or a starter, the speed never slips,",
+    "Schröder, the German waterbug — Dennis, the passport's script."]},
+  {answer:"Jaden Ivey", d:3, lines:[
+    "His mother coaches Notre Dame, the bloodline runs the sport,",
+    "from Purdue's backcourt he exploded, drafted fifth to court,",
+    "in Detroit's rebuild his burst became the fast-break's fort,",
+    "a broken leg would pause the flight — the comeback his retort,",
+    "Ivey, the blazing guard — Jaden, the bloodline's sort."]},
+  {answer:"Jalen Duren", d:3, lines:[
+    "A teenage man-child center, Memphis' one-year stop,",
+    "drafted as the youngest player of his class's crop,",
+    "in Detroit's paint he catches lobs above the drop,",
+    "double-doubles before twenty-one, the boards his nightly prop,",
+    "Duren, the young rim-runner — Jalen, the lob's backdrop."]},
+  {answer:"Isaiah Stewart", d:3, lines:[
+    "\"Beef Stew\" out of Washington, all shoulders, snarl, and fight,",
+    "a famous flare-up with a King put his fury in the light,",
+    "in Detroit's trenches every screen is set with spite,",
+    "the enforcer of the rebuild, the hard hat's rite,",
+    "Stewart, the bruising big — Isaiah, the fight's ignite."]},
+  {answer:"Malik Beasley", d:3, lines:[
+    "A journeyman sharpshooter with the quickest catch-and-fire,",
+    "three hundred threes one season pushed the record wire,",
+    "in Detroit's revival year his bombs helped lift them higher,",
+    "a bench role, a green light, the only job require,",
+    "Beasley, the volume sniper — Malik, the arc's town crier."]},
+  {answer:"Aaron Nesmith", d:3, lines:[
+    "A Vanderbilt sniper Boston drafted for the stroke,",
+    "then Indiana freed the dog in him — the hustle woke,",
+    "he hounded stars through twenty-five's Finals-run baroque,",
+    "eight threes one conference-finals night — a comeback's masterstroke,",
+    "Nesmith, the three-and-D wing — Aaron, the effort's yoke."]},
+  {answer:"TJ McConnell", d:3, lines:[
+    "Undrafted out of Arizona, a throwback to the past,",
+    "he picks your pocket full-court and pushes contrast fast,",
+    "a Finals folk hero in twenty-five, the second unit's mast,",
+    "every huddle's favorite pest, the gym-rat unsurpassed,",
+    "McConnell, the pesky point — TJ, the hustle's cast."]},
+  {answer:"Duncan Robinson", d:3, lines:[
+    "From Division Three beginnings, then Michigan's long climb,",
+    "undrafted into Miami where the shooters find their prime,",
+    "a Finals-starting marksman by his second season's time,",
+    "the most threes in Heat history — the culture's paradigm,",
+    "Robinson, the movement shooter — Duncan, the longshot's rhyme."]},
+  {answer:"Jaime Jaquez Jr.", d:3, lines:[
+    "A UCLA four-year senior in a one-and-done's terrain,",
+    "his Mexican heritage worn proudly on his sleeve and chain,",
+    "a rookie in Miami running vets' moves through the lane,",
+    "crafty footwork, post-ups, the old soul's domain,",
+    "Jaquez, the polished rookie — Jaime, the heritage plain."]},
+  {answer:"Nikola Jović", d:3, lines:[
+    "A Serbian point-forward, tall with playmaker's eyes,",
+    "Miami drafted vision wrapped in six-foot-ten disguise,",
+    "for Serbia beside the world's best center he plies,",
+    "the development's slow burn, the flashes still the prize,",
+    "Jović, the passing forward — Nikola, the Serbian rise."]},
+  {answer:"Kel'el Ware", d:3, lines:[
+    "An Indiana seven-footer, lottery-called by Miami's crew,",
+    "a lob-catch, shot-block rookie with a jumper coming true,",
+    "beside the Heat's All-Star anchor a towering debut,",
+    "the twin-tower experiment the culture's testing through,",
+    "Ware, the springy center — Kel'el, the future's view."]},
+  {answer:"Bobby Portis", d:3, lines:[
+    "\"Bobby Buckets!\" — Milwaukee's bench erupts in cheers,",
+    "an Arkansas bruiser embraced by beer-soaked engineers,",
+    "a champion in twenty-one, the crowd's own volunteers,",
+    "\"underdog\" tattooed in spirit through the roster's tiers,",
+    "Portis, the people's forward — Bobby, the Deer District's tears."]},
+  {answer:"Pat Connaughton", d:3, lines:[
+    "An Orioles draft pick once — a fastball in his sleeve,",
+    "he chose the hardwood, Notre Dame his competitive weave,",
+    "a champion in twenty-one, the corner threes achieve,",
+    "the two-sport athlete's hops that dunk contests believe,",
+    "Connaughton, the baseball-armed wing — Pat, the dual reprieve."]},
+  {answer:"Gary Trent Jr.", d:3, lines:[
+    "His father banged in the post, the \"Shaq of the MAC\" of old,",
+    "the son became a sniper, Duke's one-year stroke of gold,",
+    "in Portland then Toronto his catch-and-shoot took hold,",
+    "a bargain signed in Milwaukee, playoff daggers bold,",
+    "Trent, the legacy shooter — Gary, the bloodline's mold."]},
+  {answer:"Jaden McDaniels", d:3, lines:[
+    "A Washington wing of wire and length, the scorer's dread,",
+    "in Minnesota's defense he's the spider's silken thread,",
+    "All-Defense honors chasing stars through every thread,",
+    "the silent partner shadowing where Edwards' noise is led,",
+    "McDaniels, the wiry stopper — Jaden, the thread's own dread."]},
+  {answer:"Nickeil Alexander-Walker", d:3, lines:[
+    "A Canadian two-way guard, Virginia Tech his school,",
+    "his cousin runs the Thunder — MVP-level cool,",
+    "in Minnesota's playoff runs he guarded stars to rule,",
+    "then Atlanta paid the stopper from the bench's stool,",
+    "Alexander-Walker, the kin defender — Nickeil, the cousin's duel."]},
+  {answer:"Jose Alvarado", d:3, lines:[
+    "\"Grand Theft Alvarado\" — he lurks behind the line,",
+    "a hidden full-court pickpocket, the steal his warning sign,",
+    "undrafted from Georgia Tech, New Orleans' pest by design,",
+    "Puerto Rico's fireball, the crowd's adrenaline shrine,",
+    "Alvarado, the sneaky guard — Jose, the theft divine."]},
+  {answer:"Jonas Valančiūnas", d:3, lines:[
+    "A Lithuanian mountain in the low post's fading art,",
+    "in Toronto's rise he bruised, then Memphis played his part,",
+    "double-doubles by the dozen, the hook shot his rampart,",
+    "the old-school big enduring as the threes pull bigs apart,",
+    "Valančiūnas, the Baltic bruiser — Jonas, the post's own heart."]},
+  {answer:"Mitchell Robinson", d:3, lines:[
+    "He skipped his college season, trained alone instead,",
+    "a second-round redemption — the Knicks' rim overhead,",
+    "offensive boards in bunches, blocks that wake the dead,",
+    "the league's top field-goal clip while barely shooting, said,",
+    "Robinson, the spring-loaded center — Mitchell, the putback's spread."]},
+  {answer:"Miles McBride", d:3, lines:[
+    "\"Deuce\" from West Virginia, a bulldog on the ball,",
+    "the Garden chants his nickname when his threes befall,",
+    "a bench guard turned essential in the playoff's brawl,",
+    "the Knicks' own pressure valve when starters hit the wall,",
+    "McBride, the two-way spark — Deuce, the Garden's call."]},
+  {answer:"Precious Achiuwa", d:3, lines:[
+    "From Nigeria through Memphis, a bouncy switchable four,",
+    "dealt in a famous big-man swap to Toronto's shore,",
+    "then the Garden's frontcourt patchwork, energy his core,",
+    "position-less and springy, the modern big's rapport,",
+    "Achiuwa, the elastic forward — Precious, the switch's door."]},
+  {answer:"Luguentz Dort", d:3, lines:[
+    "From Montreal, undrafted, a linebacker in disguise,",
+    "in Thunder blue he clamps the wings, the league's most bruising prize,",
+    "\"Dorture chamber\" for the stars who meet his thighs and size,",
+    "a champion in twenty-five, All-Defense in his eyes,",
+    "Dort, the immovable stopper — Lu, the offense dies."]},
+  {answer:"Isaiah Hartenstein", d:3, lines:[
+    "A German-American seven-footer, floater soft as snow,",
+    "from journeyman to Garden hero, the one-hand push his show,",
+    "then Oklahoma paid the glue — a title in the flow,",
+    "screens, boards, and slick short passes, the winning undertow,",
+    "Hartenstein, the connective big — Isaiah, the champion's glow."]},
+  {answer:"Cason Wallace", d:3, lines:[
+    "A Kentucky guard of quiet hands and passing-lane deceit,",
+    "drafted to the Thunder's swarm, a rookie's title beat,",
+    "he guards above his years, the steals his silent treat,",
+    "the youngest cog in a champion's machine complete,",
+    "Wallace, the poised defender — Cason, the swarm's elite."]},
+  {answer:"Aaron Wiggins", d:3, lines:[
+    "A Maryland second-rounder who outworked his draft-day slot,",
+    "in Oklahoma's depth chart he made every minute hot,",
+    "efficient slashing scoring when the stars would rest their lot,",
+    "a champion in twenty-five, the depth the title bought,",
+    "Wiggins, the efficient wing — Aaron, the roster's knot."]},
+  {answer:"Isaiah Joe", d:3, lines:[
+    "An Arkansas sniper waived, then salvaged by the smart,",
+    "in Oklahoma's spacing schemes his threes became an art,",
+    "among the league's best clips from deep, the catch-and-dart,",
+    "a champion in twenty-five, the bench's shooting heart,",
+    "Joe, the corner marksman — Isaiah, the salvaged part."]},
+  {answer:"Jeremy Sochan", d:3, lines:[
+    "A Baylor forward, Polish flags upon his sleeve,",
+    "hair dyed new colors nightly, the free throws one-hand heave,",
+    "drafted to San Antonio, point-forward make-believe,",
+    "the do-it-all disruptor Pop's system would conceive,",
+    "Sochan, the rainbow defender — Jeremy, the Pole's reprieve."]},
+  {answer:"Gradey Dick", d:3, lines:[
+    "A Kansas freshman sniper in a sparkling ruby coat,",
+    "the draft-night suit went viral — the memes his welcome boat,",
+    "in Toronto's wing rotation his movement threes denote,",
+    "a shooter's name, a shooter's game, the arc his native moat,",
+    "Dick, the sharpshooting wing — Gradey, the red-suit note."]},
+  {answer:"Ochai Agbaji", d:3, lines:[
+    "A Kansas champion, the Final Four's most outstanding one,",
+    "drafted into Utah's rebuild before the tanking spun,",
+    "then to Toronto's wing corps, the three-and-D his gun,",
+    "a ready-made role player when the college run was done,",
+    "Agbaji, the champion wing — Ochai, the finished one."]},
+  {answer:"Taylor Hendricks", d:3, lines:[
+    "A UCF stretch-forward, lottery-called by Salt Lake's crew,",
+    "a three-and-block-shot skillset, the modern four's debut,",
+    "a gruesome broken leg would test his climb anew,",
+    "the comeback trail his story, the tools still shining through,",
+    "Hendricks, the rangy forward — Taylor, the trial's breakthrough."]},
+  {answer:"Brice Sensabaugh", d:3, lines:[
+    "An Ohio State bucket-getter, thick-framed with feathered touch,",
+    "in Utah's youth brigade he scores without a crutch,",
+    "the bench's instant offense, defense not so much,",
+    "a flamethrower in waiting within the rebuild's clutch,",
+    "Sensabaugh, the scoring forward — Brice, the bucket's touch."]},
+  {answer:"Grayson Allen", d:3, lines:[
+    "A Duke villain famed for tripping, the whistles his old friend,",
+    "a national title freshman year, intensity his blend,",
+    "then Phoenix's forgotten man led the league from beyond the end —",
+    "the highest three-point clip one year, the arc his dividend,",
+    "Allen, the polarizing sniper — Grayson, the tripwire's bend."]},
+  {answer:"Royce O'Neale", d:3, lines:[
+    "Undrafted out of Baylor, through Europe's winding road,",
+    "in Utah's wing rotation the three-and-D bestowed,",
+    "a low-usage professional, the corner his abode,",
+    "then Phoenix's veteran glue, the role-man's honest code,",
+    "O'Neale, the sturdy wing — Royce, the journey's ode."]},
+  {answer:"Jusuf Nurkić", d:3, lines:[
+    "\"The Bosnian Beast,\" a bruiser dealt from Denver's plan,",
+    "in Portland's paint he flourished, the second-chance's man,",
+    "a shattered leg mid-season broke the fast-rise's span,",
+    "then desert swaps and feuds — still the low-post artisan,",
+    "Nurkić, the burly center — Jusuf, the Balkan clan."]},
+  {answer:"Shaedon Sharpe", d:3, lines:[
+    "He enrolled at Kentucky, never played a single game,",
+    "the mystery of his draft class — scouts guessed on tape and fame,",
+    "in Portland's launching pad his windmills earned the name,",
+    "a forty-inch vertical, the highlight reel's own flame,",
+    "Sharpe, the mystery leaper — Shaedon, the untaped claim."]},
+  {answer:"Deni Avdija", d:3, lines:[
+    "From Israel's Maccabi youth, a ninth-pick's worldly game,",
+    "in Washington he simmered, the flashes never came,",
+    "then Portland lit the furnace — point-forward his acclaim,",
+    "triple-doubles, downhill force, the breakout's rightful claim,",
+    "Avdija, the driving forward — Deni, the late-lit flame."]},
+  {answer:"Toumani Camara", d:3, lines:[
+    "From Brussels through Dayton, a second-rounder's grind,",
+    "in Portland's wing assignments the league's best get assigned,",
+    "All-Defense as a bargain, the charge-take by design,",
+    "a Belgian pit-bull forward the scouts all left behind,",
+    "Camara, the elite stopper — Toumani, the steal enshrined."]},
+  {answer:"Jerami Grant", d:3, lines:[
+    "His father and his uncle both wore the league's own thread,",
+    "from Syracuse's zone he rose, a wing where blocks are bred,",
+    "in Detroit he chose the harder role — the number-one instead,",
+    "then Portland's twenty-plus-a-night, the smooth-scoring spread,",
+    "Grant, the scoring forward — Jerami, the bloodline's thread."]},
+  {answer:"Matisse Thybulle", d:3, lines:[
+    "A Washington zone-wrecker with the passing lanes on lock,",
+    "All-Defense twice in Philly off the bench's shock,",
+    "for Australia's Boomers he'd defend around the clock,",
+    "then Portland's wing infirmary, the steals still stock,",
+    "Thybulle, the havoc wing — Matisse, the pickpocket's stock."]},
+  {answer:"Jaxson Hayes", d:3, lines:[
+    "A Texas lob-catch big whose father caught touchdowns instead,",
+    "drafted high to New Orleans where the flashes fled,",
+    "then Hollywood's backup center, dunking lobs the King has fed,",
+    "vertical spacing purely, the rim his daily bread,",
+    "Hayes, the alley-oop center — Jaxson, above the head."]},
+  {answer:"Rui Hachimura", d:3, lines:[
+    "From Toyama, Japan, through Gonzaga's steady rise,",
+    "the first first-rounder from his nation — history in his stride,",
+    "in Washington he started, then purple-gold's supplies,",
+    "a playoff scoring forward with a samurai's disguise,",
+    "Hachimura, the smooth forward — Rui, the rising sun's pride."]},
+  {answer:"Jarred Vanderbilt", d:3, lines:[
+    "A Kentucky forward built of elbows, hustle, sweat,",
+    "in Minnesota's dirty work his rep was firmly set,",
+    "then purple-gold's assignment: guard the star, collect the debt,",
+    "no plays are ever called for him — the winning's silhouette,",
+    "Vanderbilt, the junkyard forward — Jarred, the hustle's net."]},
+  {answer:"Gabe Vincent", d:3, lines:[
+    "Undrafted from Santa Barbara, cut and signed again,",
+    "he ran Miami's playoff point in twenty-three's campaign,",
+    "a Finals-starting story from the two-way's rain,",
+    "Nigeria's national colors also his to claim,",
+    "Vincent, the resilient guard — Gabe, the two-way's gain."]},
+  {answer:"Daniel Gafford", d:3, lines:[
+    "An Arkansas rim-runner traded to the Mavs' design,",
+    "he strung together makes for weeks — no misses on the line,",
+    "a record-chasing stretch of dunks, efficiency divine,",
+    "the two-big lob brigade that reached the Finals' shrine,",
+    "Gafford, the dunk machine — Daniel, the made-shot line."]},
+  {answer:"Spencer Dinwiddie", d:3, lines:[
+    "A Colorado guard rebuilt from a torn-up knee,",
+    "in Brooklyn's backcourt bloomed a twenty-point degree,",
+    "he tokenized his contract — crypto's novelty,",
+    "a journeyman's long resume, clutch shots his guarantee,",
+    "Dinwiddie, the savvy guard — Spencer, the digital spree."]},
+  {answer:"Dwight Powell", d:3, lines:[
+    "A Stanford-educated big, Canadian and true,",
+    "a decade-plus in Dallas, the locker room's glue,",
+    "the roll-man for a wonder-boy, the lob his avenue,",
+    "captains' patches, quiet screens, the franchise's residue,",
+    "Powell, the loyal center — Dwight, the longest tenure's view."]},
+  {answer:"GG Jackson", d:3, lines:[
+    "He reclassified and jumped to college early, South Carolina's own,",
+    "the youngest in his draft class, to the second round he'd flown,",
+    "in Memphis' injury wasteland his scoring flag was flown,",
+    "a teenage twenty-point night — the steal the scouts bemoan,",
+    "Jackson, the teen flamethrower — GG, the slide outgrown."]},
+  {answer:"Brandon Clarke", d:3, lines:[
+    "A Gonzaga pogo big whose hops defy his height,",
+    "in Memphis' grit-and-grind he finishes mid-flight,",
+    "floaters soft as feathers, efficiency's delight,",
+    "an Achilles tear would test the spring — the comeback's fight,",
+    "Clarke, the bouncing forward — Brandon, the second flight."]},
+  {answer:"Santi Aldama", d:3, lines:[
+    "From the Canary Islands, through Loyola's tiny gym,",
+    "a Spaniard in the draft's late first — the scouts on him were slim,",
+    "in Memphis' forward rotation the stretch skills fill the brim,",
+    "for Spain he plays the summers, the national team's hymn,",
+    "Aldama, the Spanish stretch-four — Santi, the isle's own limb."]},
+  {answer:"Luke Kennard", d:3, lines:[
+    "A Duke lefty with a stroke the purists call the best,",
+    "he led the league in three-point clip — twice above the rest,",
+    "from Detroit through the Clippers, Memphis' shooting guest,",
+    "the movement-shooting specialist, the catch-and-fire blessed,",
+    "Kennard, the lefty marksman — Luke, the percentage's crest."]},
+  {answer:"Scotty Pippen Jr.", d:3, lines:[
+    "His father owns six rings beside the greatest ever known,",
+    "the son went undrafted — Vanderbilt his college throne,",
+    "through two-way grind in Memphis a rotation spot was grown,",
+    "the surname is a shadow; the game is all his own,",
+    "Pippen, the earning son — Scotty, the name outgrown."]},
+  {answer:"Kevon Looney", d:3, lines:[
+    "A UCLA big of hips rebuilt and hands of glue,",
+    "three championships in the Bay — the trust he never blew,",
+    "twenty-rebound playoff nights when the dynasty needed rescue,",
+    "no lob, no post, just position — the professional's virtue,",
+    "Looney, the stalwart center — Kevon, the dynasty's crew."]},
+  {answer:"Moses Moody", d:3, lines:[
+    "An Arkansas wing drafted to the champion's patient bench,",
+    "a ring in twenty-two while waiting for the wrench,",
+    "the three-and-D apprenticeship, the minutes' slow entrench,",
+    "professional and ready when the rotations clench,",
+    "Moody, the patient wing — Moses, the bench's mensch."]},
+  {answer:"Brandin Podziemski", d:3, lines:[
+    "From Santa Clara's gym — the path that Nash once blazed,",
+    "a lottery-adjacent rookie leaving vets amazed,",
+    "he rebounds like a forward, the charge-take unfazed,",
+    "the Bay's next savvy guard the draft-room gods had praised,",
+    "Podziemski, the crafty guard — Brandin, the mid-major raised."]},
+  {answer:"Trayce Jackson-Davis", d:3, lines:[
+    "His father slammed in the league — an Indiana lineage clear,",
+    "at Indiana he starred, then slid to the second tier,",
+    "the Warriors found a rim-run big for their veteran frontier,",
+    "lobs and blocks on rookie money, the value engineer,",
+    "Jackson-Davis, the bloodline big — Trayce, the slide's premier."]},
+  {answer:"Gary Payton II", d:3, lines:[
+    "The Glove's own son, a junkyard dog of steals and flight,",
+    "through G-League buses grinding toward one two-way's light,",
+    "a champion in twenty-two — his father wept that night,",
+    "the screener's-slip and lob-catch, defense watertight,",
+    "Payton, the second Glove — Gary, the bloodline's bite."]},
+  {answer:"De'Anthony Melton", d:3, lines:[
+    "A USC two-way guard with instincts for the ball,",
+    "\"Mr. Do Something\" — the steals and blocks befall,",
+    "through Phoenix, Memphis, Philly, the winning plays his call,",
+    "a stat-sheet-stuffing sixth man, the glue that fills the wall,",
+    "Melton, the disruptive guard — De'Anthony, the do-it-all."]},
+  {answer:"Ivica Zubac", d:3, lines:[
+    "A Croatian center salvaged from the Lakers' trading floor,",
+    "the Clippers' bargain anchor for half a decade more,",
+    "double-doubles nightly, the drop-scheme's steady core,",
+    "the league's most lopsided heist the rivals still deplore,",
+    "Zubac, the sturdy pivot — Ivica, the trade-day score."]},
+  {answer:"Terance Mann", d:3, lines:[
+    "A Florida State glue guard with a playoff night of fame,",
+    "thirty-nine to close the Jazz — the Clippers' greatest game,",
+    "from second-round beginnings to the rotation's frame,",
+    "the energy and slashing cuts his everlasting claim,",
+    "Mann, the breakout guard — Terance, the closeout's flame."]},
+  {answer:"Derrick Jones Jr.", d:3, lines:[
+    "\"Airplane Mode\" from UNLV, undrafted but airborne,",
+    "a dunk-contest crown in twenty, the windmill's newest form,",
+    "in Dallas' Finals run his three-and-D was sworn,",
+    "the vertical journeyman whose hops the crowds adorn,",
+    "Jones, the flying wing — Derrick, the airborne form."]},
+  {answer:"Kris Dunn", d:3, lines:[
+    "A Providence point guard drafted top-five for the D,",
+    "the offense never blossomed, the stops came guaranteed,",
+    "reborn a veteran stopper in the Clippers' scheme decreed,",
+    "passing lanes and pressure — the guard assassin's creed,",
+    "Dunn, the defensive point — Kris, the steal's stampede."]},
+  {answer:"Mo Bamba", d:3, lines:[
+    "A Texas seven-footer with the wingspan of a plane,",
+    "a rapper made his surname a chorus and refrain,",
+    "in Orlando's paint he swatted, the potential half-attained,",
+    "the measurables eternal, the journeyman's campaign,",
+    "Bamba, the long-armed center — Mo, the song's refrain."]},
+  {answer:"Mason Plumlee", d:3, lines:[
+    "One of three tall brothers who all wore Duke's own blue,",
+    "a lob-catch, handoff center with a decade's residue,",
+    "through Brooklyn, Denver, Charlotte, the backup's honest crew,",
+    "the veteran screen-and-dive that coaches value true,",
+    "Plumlee, the journeyman big — Mason, the brothers' crew."]},
+  {answer:"Tre Jones", d:3, lines:[
+    "His brother won at Duke and led the league in care,",
+    "Tre followed to the Blue Devils, the steady point-guard's heir,",
+    "in San Antonio's rebuild he ran the show with flair,",
+    "low turnovers, high floor — the backup's honest fare,",
+    "Jones, the younger floor general — Tre, the family's pair."]},
+  {answer:"Tyus Jones", d:3, lines:[
+    "A Duke title-run's Most Outstanding, the tourney's April king,",
+    "the best assist-to-turnover the record books can bring,",
+    "a decade backing stars without a single fling,",
+    "then Washington's lead guard — the steady offering,",
+    "Jones, the careful conductor — Tyus, the turnover-less string."]},
+  {answer:"Kyle Filipowski", d:3, lines:[
+    "A Duke seven-foot skill big who tumbled to round two,",
+    "draft-room whispers cost him — the Jazz enjoyed the view,",
+    "stretch shooting, handles, passing, the modern big's debut,",
+    "the steal of his own draft class as the doubters' takes fell through,",
+    "Filipowski, the skilled faller — Kyle, the second-round coup."]},
+  {answer:"Isaiah Collier", d:3, lines:[
+    "A USC point guard, once the top recruit alive,",
+    "the jumper dropped his stock — to late-first he'd arrive,",
+    "in Utah's rebuild engine his passing takes the drive,",
+    "rookie assist records hinting at the vision's thrive,",
+    "Collier, the burly playmaker — Isaiah, the dimes' archive."]},
+  {answer:"Bilal Coulibaly", d:3, lines:[
+    "He shared a French youth backcourt with a seven-four sensation,",
+    "Wembanyama's teammate, drafted on that correlation,",
+    "in Washington he stretches, the wingspan's education,",
+    "a teenage two-way project of the highest expectation,",
+    "Coulibaly, the French apprentice — Bilal, the long creation."]},
+  {answer:"Alex Sarr", d:3, lines:[
+    "A French rim-running seven-footer, second off the board,",
+    "in Washington's rebuild the blocks became his hoard,",
+    "a jumper still in progress, the tools the scouts adored,",
+    "the franchise big-man bet on which the future's stored,",
+    "Sarr, the French swatter — Alex, the upside's reward."]},
+  {answer:"Bub Carrington", d:3, lines:[
+    "A Baltimore-bred guard from Pittsburgh's college floor,",
+    "a teenage lottery Wizard with a pull-up in his core,",
+    "rookie minutes by the bushel through the rebuild's chore,",
+    "the poise beyond the birthdate the scouts kept coming for,",
+    "Carrington, the young creator — Bub, the pull-up's door."]},
+  {answer:"Corey Kispert", d:3, lines:[
+    "A Gonzaga senior marksman from the near-perfect run,",
+    "drafted to the Wizards where the threes became his one,",
+    "a movement-shooting forward, the catch-and-fire spun,",
+    "low-maintenance, high-percentage — the specialist's dun,",
+    "Kispert, the reliable sniper — Corey, the spacing's sun."]},
+  {answer:"Jalen Johnson", d:3, lines:[
+    "A Duke departure early — he left the season mid,",
+    "the draft-room doubts descended; Atlanta placed its bid,",
+    "then point-forward brilliance: the do-it-all he did,",
+    "triple-double all-around nights, the breakout's solid grid,",
+    "Johnson, the versatile Hawk — Jalen, the doubt outbid."]},
+  {answer:"Dyson Daniels", d:3, lines:[
+    "From Bendigo, Australia, through the G-League Ignite's door,",
+    "\"The Great Barrier Thief\" — the steals a nightly score,",
+    "Most Improved and All-Defense, the takeaway's rapport,",
+    "in Atlanta's backcourt shadows he guards forevermore,",
+    "Daniels, the pickpocket guard — Dyson, the outback's law."]},
+  {answer:"Onyeka Okongwu", d:3, lines:[
+    "A USC shot-blocker, drafted sixth to Georgia's clay,",
+    "behind a lob-catch legend he waited for his day,",
+    "undersized but bouncy, the switch-and-swat ballet,",
+    "Atlanta's modern center in the smaller-big's array,",
+    "Okongwu, the compact anchor — Onyeka, the patient way."]},
+  {answer:"De'Andre Hunter", d:3, lines:[
+    "A Virginia champion, the title-game's own cold assassin,",
+    "drafted fourth to Atlanta, the two-way wing's fashion,",
+    "the midrange smooth, the D switchable, the quiet passion,",
+    "then Cleveland's sixth-man weapon in the trade-deadline's action,",
+    "Hunter, the two-way forward — De'Andre, the title-tested faction."]},
+  {answer:"Zaccharie Risacher", d:3, lines:[
+    "A French wing taken first in twenty-twenty-four's call,",
+    "his father played the EuroLeague — the bloodline's protocol,",
+    "in Atlanta's youth movement his threes and cuts install,",
+    "the low-ego number-one who lets the game befall,",
+    "Risacher, the smooth French wing — Zaccharie, first of all."]},
+  {answer:"Nick Richards", d:3, lines:[
+    "A Kentucky center patient through the two-way's grind,",
+    "in Charlotte's paint he blossomed, the lob-and-block aligned,",
+    "then Phoenix bought the big man the rotation couldn't find,",
+    "free throws for a center of a startlingly clean kind,",
+    "Richards, the late-bloom pivot — Nick, the patience-signed."]},
+  {answer:"Grant Williams", d:3, lines:[
+    "A Tennessee bruiser talking trash through every play,",
+    "in Boston's playoff wars he'd take the charge and stay,",
+    "from Dallas to Charlotte his chirping led the fray,",
+    "a stretch-four journeyman with lots and lots to say,",
+    "Williams, the chirping forward — Grant, the charge-take's sway."]},
+  {answer:"Tre Mann", d:3, lines:[
+    "A Florida guard with handles smooth as watered silk,",
+    "the shake-and-bake step-back, the streetball dazzle's ilk,",
+    "from Thunder depth to Charlotte, the bag his native milk,",
+    "a microwave of crossovers in the second unit's silk,",
+    "Mann, the slick-handled guard — Tre, the crossover's ilk."]},
+  {answer:"Josh Green", d:3, lines:[
+    "An Aussie three-and-D wing out of Arizona's sun,",
+    "in Dallas' wing rotation the corner threes he'd run,",
+    "a Finals run in twenty-four before the trade was spun,",
+    "then Charlotte's veteran tutor for the rebuild's young,",
+    "Green, the Aussie wing — Josh, the outback's run."]},
+  {answer:"Anthony Black", d:3, lines:[
+    "An Arkansas jumbo guard drafted sixth to Disney's floor,",
+    "six-foot-seven of playmaking, the point-of-attack's door,",
+    "in Orlando's defense factory his length patrols the fore,",
+    "the jumper is the swing skill — the tools the scouts adore,",
+    "Black, the oversized guard — Anthony, the length's rapport."]},
+  {answer:"Goga Bitadze", d:3, lines:[
+    "From Georgia — the country, not the college or the state,",
+    "a bruising backup center with a soft-touch trait,",
+    "from Indiana's fringes to Orlando's rotate,",
+    "screens and boards and hook shots, the Caucasus' own weight,",
+    "Bitadze, the Georgian big — Goga, the mountain's gait."]},
+  {answer:"Jonathan Isaac", d:3, lines:[
+    "A Florida State wingspan with a preacher's steady soul,",
+    "in Orlando's schemes he blocks and switches, defense his whole role,",
+    "the knees kept stealing seasons — the faith kept him whole,",
+    "when healthy, few disrupt a game with such control,",
+    "Isaac, the towering stopper — Jonathan, the spirit's goal."]},
+  {answer:"Kentavious Caldwell-Pope", d:3, lines:[
+    "A Georgia two-guard forged in three-and-D's own kiln,",
+    "a ring with purple-gold, another on Denver's hill,",
+    "two titles, two franchises — the winner's proven skill,",
+    "the corner threes and pressure D that championships distill,",
+    "Caldwell-Pope, the two-ring wing — KCP, the winning drill."]},
+  {answer:"Gary Harris", d:3, lines:[
+    "A Michigan State two-guard of the steady veteran's creed,",
+    "in Denver's rising seasons his backcourt D agreed,",
+    "then Orlando's locker-room compass, the young corps' need,",
+    "the catch-and-shoot professional, reliability guaranteed,",
+    "Harris, the veteran guard — Gary, the steady deed."]},
+  {answer:"Jared McCain", d:3, lines:[
+    "A TikTok star with painted nails and buckets in his bag,",
+    "a Duke freshman sniper dancing while the doubters gag,",
+    "his rookie scoring stunned the league — the ROY-race flag,",
+    "then a knee cut short the story — the comeback's slow drag,",
+    "McCain, the viral rookie — Jared, the dance and swag."]},
+  {answer:"Andre Drummond", d:3, lines:[
+    "A UConn rebounding monster, four crowns on the glass,",
+    "in Detroit's fading era the boards came by the mass,",
+    "the double-double machine the analytics surpass,",
+    "a journeyman's late chapters backing centers of high class,",
+    "Drummond, the glass devourer — Andre, the rebound's mass."]},
+  {answer:"Guerschon Yabusele", d:3, lines:[
+    "\"The Dancing Bear\" from France, a Boston first-round bust,",
+    "he rebuilt his name in Europe, Real Madrid's own trust,",
+    "then dunked on the King himself in Paris — Olympic gust,",
+    "an NBA return in Philly, the redemption just,",
+    "Yabusele, the powerful forward — Guerschon, the comeback's thrust."]},
+  {answer:"Tobias Harris", d:3, lines:[
+    "A Tennessee forward traded half a dozen times,",
+    "the steady twenty-and-eight through franchise paradigms,",
+    "in Philly's max-deal spotlight he bore the discourse crimes,",
+    "then back to Detroit's rebuild — the veteran's honest climes,",
+    "Harris, the professional forward — Tobias, the discourse's rhymes."]},
+  {answer:"Paul Reed", d:3, lines:[
+    "\"BBall Paul\" from DePaul — the nickname says it all,",
+    "an energy big man feasting on the second unit's brawl,",
+    "in Philly's backup minutes his motor stood tall,",
+    "the stat-stuffing chaos agent answering the call,",
+    "Reed, the frenzy forward — Paul, the hustle's protocol."]},
+  {answer:"Jarace Walker", d:3, lines:[
+    "A Houston freshman forward with a linebacker's frame,",
+    "drafted eighth to the Pacers' up-tempo winning game,",
+    "the defense-first apprentice in the rotation's claim,",
+    "switchable and springy, the toolbox all aflame,",
+    "Walker, the sturdy forward — Jarace, the future's frame."]},
+  {answer:"Isaiah Jackson", d:3, lines:[
+    "A Kentucky pogo center in the Pacers' running scheme,",
+    "blocks and lob-catch finishes his nightly highlight theme,",
+    "an Achilles interruption paused the springy dream,",
+    "the bounce-back big rotation of the up-tempo team,",
+    "Jackson, the leaping center — Isaiah, the block's regime."]},
+  {answer:"AJ Green", d:3, lines:[
+    "A Northern Iowa gunner, undrafted, overlooked,",
+    "in Milwaukee's spacing rotation his catch-and-fire cooked,",
+    "among the league's best clips from deep, the closeouts hooked,",
+    "the mid-major sniper story the draft-day rooms mistook,",
+    "Green, the undrafted marksman — AJ, the deep-range book."]},
+  {answer:"Taurean Prince", d:3, lines:[
+    "A Baylor first-round forward with a decade's steady climb,",
+    "from Atlanta through the journeyman's franchise paradigm,",
+    "the corner three-and-D his craft, reliability his rhyme,",
+    "a veteran's locker-room presence every single time,",
+    "Prince, the well-traveled wing — Taurean, the steady time."]},
+  {answer:"Noah Clowney", d:3, lines:[
+    "An Alabama teenage stretch-big, Brooklyn's patient bet,",
+    "drafted as a project — the tools and timeline set,",
+    "stretch threes and weak-side blocks, the modern four's duet,",
+    "the rebuild's quiet cornerstone the fans have not seen yet,",
+    "Clowney, the developing big — Noah, the long-term debt."]},
+  {answer:"Egor Demin", d:3, lines:[
+    "From Moscow through Real Madrid's academy he came,",
+    "then BYU's tall point guard — a curious college frame,",
+    "drafted top-ten by the Nets, the vision his acclaim,",
+    "six-foot-nine of passing, the Russian playmaker's name,",
+    "Demin, the jumbo creator — Egor, the vision's claim."]},
+  {answer:"Danny Wolf", d:3, lines:[
+    "From Yale's old ivy gymnasium to Michigan's big stage,",
+    "a seven-foot point-center, the college game's strange sage,",
+    "drafted to the Nets' rebuild, the handles off the page,",
+    "spin moves and behind-the-backs at a big man's gauge,",
+    "Wolf, the point-five center — Danny, the Ivy's sage."]},
+  {answer:"Chris Boucher", d:3, lines:[
+    "From Saint Lucia through Montreal, a story built on grit,",
+    "junior college, Oregon, undrafted — every bit,",
+    "a champion in Toronto where his blocks and threes would fit,",
+    "the springiest of stretch-bigs off the bench's pit,",
+    "Boucher, the late-bloom forward — Chris, the longshot's writ."]},
+  {answer:"Kasparas Jakučionis", d:3, lines:[
+    "From Lithuania through Barcelona's youth, then Illinois' floor,",
+    "a crafty teenage playmaker the lottery came for,",
+    "Miami drafted vision for the culture's guarded door,",
+    "pick-and-roll patience from the Baltic's passing lore,",
+    "Jakučionis, the smooth creator — Kasparas, the Baltic's core."]},
+  {answer:"VJ Edgecombe", d:3, lines:[
+    "From the Bahamas via Baylor, a leaper born to fly,",
+    "drafted third to Philadelphia, athletic ceiling high,",
+    "two-way burst and hammer dunks that make the rafters sigh,",
+    "the islands' next great export lighting up the sky,",
+    "Edgecombe, the explosive guard — VJ, the vertical's ally."]},
+  {answer:"Tre Johnson", d:3, lines:[
+    "A Texas freshman bucket with the purest scoring stroke,",
+    "drafted high to Washington, the rebuild's shooting cloak,",
+    "deep pull-ups and off-movement fire, the flamethrower's smoke,",
+    "a scorer's scorer learning where the veterans once spoke,",
+    "Johnson, the smooth gunner — Tre, the bucket's yoke."]},
+  {answer:"Khaman Maluach", d:3, lines:[
+    "From South Sudan through Africa's academy he rose,",
+    "a Duke rim-running tower where the shot-block grows,",
+    "drafted lottery to Phoenix, the vertical's repose,",
+    "the program's proudest pipeline — the continent's next prose,",
+    "Maluach, the soaring center — Khaman, the pipeline's rose."]},
+  {answer:"Kon Knueppel", d:3, lines:[
+    "A Wisconsin-bred sharpshooter in Duke's one-season white,",
+    "beside the top pick Flagg he spaced the floor just right,",
+    "drafted fourth to Charlotte, the stroke his guiding light,",
+    "the catch-and-shoot connector with a competitor's bite,",
+    "Knueppel, the deadeye wing — Kon, the jumper's rite."]},
+  {answer:"Jeremiah Fears", d:3, lines:[
+    "An Oklahoma teenage blur, the youngest lead-guard tier,",
+    "drafted top-ten to New Orleans in his eighteenth year,",
+    "the handle and the burst arrive before the jumper's clear,",
+    "a live-dribble prodigy — the future engineer,",
+    "Fears, the teenage engine — Jeremiah, without fear."]},
+  {answer:"Derik Queen", d:3, lines:[
+    "A Baltimore-born big man with the softest tricky feet,",
+    "at Maryland he danced through double-teams on repeat,",
+    "New Orleans traded up — the touch too sweet to cheat,",
+    "a throwback post creator in the modern spacing's street,",
+    "Queen, the crafty center — Derik, the footwork's treat."]},
+  {answer:"Jaylen Wells", d:3, lines:[
+    "From Division Two beginnings to Washington State's own door,",
+    "a second-rounder starting for the grit-and-grind's rapport,",
+    "All-Rookie honors chasing, the three-and-D his chore,",
+    "the draft's forgotten wing who guarded stars before,",
+    "Wells, the poised rookie — Jaylen, the two-way's floor."]},
+  {answer:"Yves Missi", d:3, lines:[
+    "From Cameroon through Baylor, a rim-run rookie's rise,",
+    "New Orleans drafted vertical — the lob his enterprise,",
+    "blocks and putback hammers, the raw tools scouts would prize,",
+    "the pipeline out of Yaoundé that produced the giants' size,",
+    "Missi, the bouncing center — Yves, the vertical's prize."]},
+  {answer:"Quentin Grimes", d:3, lines:[
+    "A Houston two-guard toughened by the Final Four's own grind,",
+    "from Garden three-and-D beginnings, then the trades aligned,",
+    "a breakout in Philadelphia — the scoring redesigned,",
+    "thirty-point eruptions from the role-man's mind,",
+    "Grimes, the rising two-guard — Quentin, the leap outlined."]},
+  {answer:"Keon Ellis", d:3, lines:[
+    "Undrafted out of Alabama, two-way papers signed,",
+    "in Sacramento's backcourt his defense was refined,",
+    "the passing-lane disruptor with the corner three aligned,",
+    "the bargain-bin discovery the cap-sheet gods designed,",
+    "Ellis, the two-way climber — Keon, the find refined."]},
+  {answer:"Peyton Watson", d:3, lines:[
+    "A UCLA wing of wingspan, drafted on the tools,",
+    "in Denver's patient program he learned the winning rules,",
+    "weak-side blocks from nowhere — the highlight reel he fuels,",
+    "the champion's apprenticeship in the altitude's own schools,",
+    "Watson, the lanky stopper — Peyton, the block that duels."]},
+  {answer:"Gordon Hayward", d:3, lines:[
+    "His half-court heave for Butler rimmed a title just away,",
+    "an inch from March's greatest shot on college hoops' last day,",
+    "an All-Star built in Utah, then Boston came to pay,",
+    "five minutes in, his leg gave way — the gasp heard far away,",
+    "Hayward, the all-around wing — Gordon, the almost-play."]},
+  {answer:"Rip Hamilton", d:3, lines:[
+    "A plastic mask became his face after a broken nose,",
+    "he ran the floor off endless screens until the defense froze,",
+    "a UConn title's finest player, as the story goes,",
+    "the mid-range motor of the oh-four Pistons' blows,",
+    "Hamilton, the masked assassin — Rip, in constant flows."]},
+  {answer:"Steve Francis", d:3, lines:[
+    "He refused the team that drafted him — Vancouver's brief despair,",
+    "\"Stevie Franchise\" landed down in Houston's fireball air,",
+    "a co-Rookie of the Year with crossovers to spare,",
+    "he lobbed to a great wall from China, a backcourt's flair,",
+    "Francis, the explosive point — Steve, the franchise's heir."]},
+  {answer:"Glenn Robinson", d:3, lines:[
+    "\"Big Dog\" out of Purdue, the college scoring king,",
+    "the first name called in ninety-four, Milwaukee's offering,",
+    "a smooth and heavy scorer with a jumper's steady sting,",
+    "his son would win a dunk contest — the bloodline's second wing,",
+    "Robinson, the scoring forward — Glenn, the Big Dog's ring."]},
+  {answer:"Kevin Willis", d:3, lines:[
+    "A Michigan State big of boards who simply wouldn't age,",
+    "in Atlanta's glass wars nightly he'd rebound with rage,",
+    "a ring in San Antonio deep in his career's late page,",
+    "he played past forty-four — the longest-running stage,",
+    "Willis, the ageless forward — Kevin, the iron gauge."]},
+  {answer:"Cedric Ceballos", d:3, lines:[
+    "A blindfold dunk in ninety-two — or so the legend tells,",
+    "a Cal State Fullerton find where the second round dwells,",
+    "in Phoenix then with the Lakers his scoring cast its spells,",
+    "a twenty-plus-a-night lead man before the roster swells,",
+    "Ceballos, the sightless slammer — Cedric, the contest's bells."]},
+  {answer:"Michael Finley", d:3, lines:[
+    "A Wisconsin iron man logging every minute whole,",
+    "in Dallas with a German and a Canadian's control,",
+    "the Big Three of the nineties' end, the franchise's rising soul,",
+    "released, he joined the rival Spurs — a ring his final goal,",
+    "Finley, the durable wing — Michael, the veteran's role."]},
+  {answer:"Antawn Jamison", d:3, lines:[
+    "A Carolina player of the year, then dealt on draft night through,",
+    "swapped straight across for Vince — two Tar Heels' residue,",
+    "his flip shots and his scoop shots from angles no one knew,",
+    "a Sixth Man crown, then Wizards years of twenty-plus on cue,",
+    "Jamison, the odd-angle scorer — Antawn, the trade-night two."]},
+  {answer:"Mike Bibby", d:3, lines:[
+    "A freshman point who steered Arizona to the crown,",
+    "the son of an NBA guard, the bloodline handed down,",
+    "in Sacramento's greatest years he backed the Lakers down,",
+    "the coolest hand in oh-two's war for the Western crown,",
+    "Bibby, the steady trigger — Mike, the Kings' renown."]},
+  {answer:"Richard Jefferson", d:3, lines:[
+    "An Arizona wing who rode the Kidd-led fast-break wave,",
+    "two straight trips to the Finals that New Jersey gave,",
+    "a ring at last in sixteen as the veteran help they crave,",
+    "then a mic and podcast second life the broadcast networks gave,",
+    "Jefferson, the slashing forward — Richard, the punchline's save."]},
+  {answer:"Jason Richardson", d:3, lines:[
+    "Back-to-back dunk-contest crowns, the East Bay through his legs,",
+    "a Michigan State champion from Izzo's title kegs,",
+    "the \"We Believe\" Warriors' gunner when the eighth seed broke the pegs,",
+    "a smooth two-guard of thunder dunks and deep-range powder kegs,",
+    "Richardson, the contest king — J-Rich, the highlight's dregs."]},
+  {answer:"Michael Redd", d:3, lines:[
+    "A second-rounder's lefty stroke that blossomed into gold,",
+    "a fifty-seven-point eruption — Milwaukee's record told,",
+    "the Redeem Team's zone-breaking sniper off the bench, controlled,",
+    "then knees betrayed the sweetest stroke the Bucks had ever polled,",
+    "Redd, the lefty flamethrower — Michael, the arc's stronghold."]},
+  {answer:"Joe Johnson", d:3, lines:[
+    "\"Iso Joe\" — the clock runs down, the ball is in his hands,",
+    "seven All-Star summers built on Atlanta's lands,",
+    "a max deal once the league's most mocked, yet buckets met demands,",
+    "in Brooklyn came the daggers, cold in clutch-time sands,",
+    "Johnson, the isolation king — Joe, the calm that stands."]},
+  {answer:"Luol Deng", d:3, lines:[
+    "From Sudan through Egypt's exile to a London refugee,",
+    "then Duke and Chicago's grinding wings, All-Star twice was he,",
+    "Great Britain's Olympic captain, the two-way workhorse key,",
+    "he'd lead his homeland's federation — South Sudan's decree,",
+    "Deng, the tireless forward — Luol, the odyssey."]},
+  {answer:"Monta Ellis", d:3, lines:[
+    "Straight out of Mississippi prep, a bucket blur was born,",
+    "\"Monta Ellis have it all\" — the phrase the shirts have worn,",
+    "the \"We Believe\" Warriors' lightning, defenses left forlorn,",
+    "a moped crash and trade winds left the Bay's own promise torn,",
+    "Ellis, the undersized scorer — Monta, the handle's scorn."]},
+  {answer:"David Lee", d:3, lines:[
+    "A Florida lefty grinding double-doubles by the score,",
+    "the Knicks' lone All-Star standing when the Garden's hopes were poor,",
+    "then Golden State's max forward as the rising tide would roar,",
+    "a ring in fifteen watching the young splash guards soar,",
+    "Lee, the double-double four — David, the glass's chore."]},
+  {answer:"Deron Williams", d:3, lines:[
+    "Drafted third from Illinois — the Chris Paul debate for years,",
+    "in Utah's flex he flourished, crossovers shifting gears,",
+    "a clash with Coach Sloan's exit hastened veteran tears,",
+    "then Brooklyn's max acquisition dimmed through injury's arrears,",
+    "Williams, the strong-framed point — Deron, the what-if's peers."]},
+  {answer:"Rudy Gay", d:3, lines:[
+    "A UConn wing of silk who scored through seventeen long years,",
+    "in Memphis pre-grit-eras he was the bucket that appears,",
+    "the trade that sent him northward launched analytics' cheers,",
+    "an Achilles couldn't end him — the longevity of peers,",
+    "Gay, the smooth-scoring forward — Rudy, the career of years."]},
+  {answer:"O.J. Mayo", d:3, lines:[
+    "A schoolboy legend hyped before his teenage years were through,",
+    "magazine covers in eighth grade — the circus only grew,",
+    "dealt on draft night straight for Love, a swap both teams would rue,",
+    "in Memphis flashes flickered, then the league bade him adieu,",
+    "Mayo, the prodigy guard — O.J., the hype's undue."]},
+  {answer:"Patrick Beverley", d:3, lines:[
+    "From Chicago through Ukraine and Greece before the league would call,",
+    "a full-court pest of ninety-four feet hounding every ball,",
+    "three All-Defensive teams built on irritating gall,",
+    "a podcast mic and chaos — the agitator's call,",
+    "Beverley, the professional pest — Pat Bev, the thorn to all."]},
+  {answer:"Dylan Windler", d:3, lines:[
+    "A Belmont mid-major marksman, first-round Cleveland's call,",
+    "a leg injury erased his rookie season's ball,",
+    "the stroke that scouts had circled never got to fall,",
+    "the deepest cut in this whole deck — the trivia's last wall,",
+    "Windler, the what-if shooter — Dylan, the deepest call."]},
+];
+
+/* ---------------- daily selection (full rotation) ---------------- */
+const EPOCH = Date.UTC(2026,0,1);              // Jan 1 2026
+const DAY = 86400000;
+const todayNum = Math.floor((Date.now() - EPOCH) / DAY);
+
+// Deterministic shuffle of every puzzle, so all 425 play once before any repeat.
+// Seeded so the order is identical for every player and every reload.
+function mulberry32(a){return function(){a|=0;a=a+0x6D2B79F5|0;let t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return ((t^t>>>14)>>>0)/4294967296;};}
+const ORDER = PUZZLES.map((_,i)=>i);
+(function(seed){const rnd=mulberry32(seed);for(let i=ORDER.length-1;i>0;i--){const j=Math.floor(rnd()*(i+1));const t=ORDER[i];ORDER[i]=ORDER[j];ORDER[j]=t;}})(20260101);
+const idx = ((todayNum % ORDER.length) + ORDER.length) % ORDER.length;
+let puzzle = PUZZLES[ORDER[idx]];
+let MAX = puzzle.lines.length;                 // guesses = lines
+const dailyPuzzle = puzzle;
+const KEY = "cv-stats";
+const DAYKEY = "cv-day-" + todayNum;
+/* endless mode state (functions defined below, hoisted) */
+const EKEY = "cv-endless";
+let mode = "daily";
+let endless = {seed:0,pos:0,streak:0,best:0,wins:0,score:0};
+let endlessDeck = null;
+let dailyCache = null;
+
+/* ---------------- state ---------------- */
+let revealed = 1;
+let guesses = [];        // names guessed (wrong ones accumulate)
+let status = "play";     // play | won | lost
+let solvedOn = 0;
+
+/* ---------------- elements ---------------- */
+const $ = id => document.getElementById(id);
+const verseEl=$("verse"), dotsEl=$("dots"), guessEl=$("guesses"),
+      input=$("input"), suggest=$("suggest"), hint=$("hint"),
+      guessBtn=$("guessBtn"), overlay=$("overlay");
+
+setMeta();
+
+/* ---------------- render ---------------- */
+function renderVerse(animateIndex){
+  verseEl.innerHTML="";
+  for(let i=0;i<MAX;i++){
+    const d=document.createElement("div");
+    d.className="line"+(i<revealed?"":" locked")+(i===animateIndex?" reveal":"");
+    d.textContent = i<revealed ? puzzle.lines[i] : "•";
+    verseEl.appendChild(d);
+  }
+}
+function renderDots(){
+  dotsEl.innerHTML="";
+  for(let i=0;i<MAX;i++){
+    const d=document.createElement("div");
+    d.className="dot";
+    if(i<guesses.length) d.classList.add("miss");
+    if(status==="won" && i===guesses.length) d.classList.add("made");
+    dotsEl.appendChild(d);
+  }
+}
+function renderGuesses(){
+  guessEl.innerHTML="";
+  guesses.forEach(g=>{
+    const c=document.createElement("div");
+    c.className="chip"; c.textContent=g;
+    guessEl.appendChild(c);
+  });
+}
+
+/* ---------------- autocomplete ---------------- */
+let activeIdx=-1, matches=[];
+function updateSuggest(){
+  const q=input.value.trim().toLowerCase();
+  if(!q){suggest.style.display="none";return;}
+  matches=PLAYERS.filter(p=>p.toLowerCase().includes(q) && !guesses.includes(p)).slice(0,6);
+  if(!matches.length){suggest.style.display="none";return;}
+  suggest.innerHTML="";
+  matches.forEach((m,i)=>{
+    const d=document.createElement("div");
+    d.textContent=m;
+    if(i===activeIdx)d.classList.add("active");
+    d.onmousedown=e=>{e.preventDefault();submit(m);};
+    suggest.appendChild(d);
+  });
+  suggest.style.display="block";
+}
+input.addEventListener("input",()=>{activeIdx=-1;hint.textContent="";updateSuggest();});
+input.addEventListener("keydown",e=>{
+  if(suggest.style.display==="block"){
+    if(e.key==="ArrowDown"){e.preventDefault();activeIdx=(activeIdx+1)%matches.length;updateSuggest();return;}
+    if(e.key==="ArrowUp"){e.preventDefault();activeIdx=(activeIdx-1+matches.length)%matches.length;updateSuggest();return;}
+  }
+  if(e.key==="Enter"){
+    e.preventDefault();
+    if(activeIdx>=0&&matches[activeIdx])submit(matches[activeIdx]);
+    else tryText();
+  }
+});
+input.addEventListener("blur",()=>setTimeout(()=>suggest.style.display="none",120));
+guessBtn.onclick=tryText;
+
+function tryText(){
+  const q=input.value.trim();
+  if(!q)return;
+  const exact=PLAYERS.find(p=>p.toLowerCase()===q.toLowerCase());
+  if(exact){submit(exact);return;}
+  const near=PLAYERS.filter(p=>p.toLowerCase().includes(q.toLowerCase()) && !guesses.includes(p));
+  if(near.length===1){submit(near[0]);return;}
+  hint.textContent="Pick a player from the list.";
+}
+
+/* ---------------- core ---------------- */
+function submit(name){
+  if(status!=="play")return;
+  if(guesses.includes(name)){hint.textContent="Already guessed.";return;}
+  input.value="";suggest.style.display="none";hint.textContent="";activeIdx=-1;
+
+  if(name===puzzle.answer){
+    status="won"; solvedOn=guesses.length+1;
+    // ensure full verse doesn't over-reveal past the solved point
+    renderDots();
+    finish();
+    return;
+  }
+  guesses.push(name);
+  if(guesses.length>=MAX){
+    revealed=MAX; status="lost";
+    renderVerse(); renderDots(); renderGuesses();
+    finish();
+    return;
+  }
+  const newLine=revealed;           // index about to appear
+  revealed=Math.min(revealed+1,MAX);
+  renderVerse(newLine);
+  renderDots(); renderGuesses();
+}
+
+/* ---------------- finish / stats / share ---------------- */
+function buildGrid(){
+  if(status==="won"){
+    return "🟥".repeat(solvedOn-1)+"🟩"+"⬜".repeat(MAX-solvedOn);
+  }
+  return "🟥".repeat(MAX);
+}
+function poemExcerpt(){
+  // share only the lines the player needed — the fewer, the bigger the flex
+  const upto = status==="won" ? solvedOn : Math.min(2,MAX);
+  const shown = puzzle.lines.slice(0,upto);
+  let block = "\u201C"+shown.join("\n");
+  block += (upto<MAX) ? "\n\u22EF\u201D" : "\u201D";
+  return block;
+}
+function shareText(){
+  const excerpt=poemExcerpt();
+  if(mode==="endless"){
+    return "ATHLIT \u221E \u00B7 run over \u2014 score "+lastRun.score.toLocaleString()+" \u00B7 streak "+lastRun.streak
+      +"\n\nThis one ended it:\n\n"+excerpt+"\n\nCan you name the player?";
+  }
+  const score = status==="won" ? "solved in "+solvedOn+"/"+MAX : "the verse won ("+"X/"+MAX+")";
+  return "ATHLIT No."+todayNum+" \u00B7 "+score+"\n\n"+excerpt+"\n\nCan you name the player?";
+}
+
+async function loadStats(){
+  const blank={played:0,wins:0,streak:0,max:0,last:null};
+  try{
+    if(!window.storage) return blank;
+    const r=await window.storage.get(KEY);
+    return r?JSON.parse(r.value):blank;
+  }catch(e){return blank;}
+}
+async function saveStats(s){
+  try{ if(window.storage) await window.storage.set(KEY,JSON.stringify(s)); }catch(e){}
+}
+async function saveDay(){
+  try{
+    if(window.storage) await window.storage.set(DAYKEY,JSON.stringify({status,solvedOn,guesses}));
+  }catch(e){}
+}
+async function loadDay(){
+  try{
+    if(!window.storage) return null;
+    const r=await window.storage.get(DAYKEY);
+    return r?JSON.parse(r.value):null;
+  }catch(e){return null;}
+}
+
+/* ---------------- endless mode ---------------- */
+function setMeta(){
+  const names={1:"Easy",2:"Medium",3:"Hard"};
+  let beans="";
+  for(let i=1;i<=3;i++) beans+='<span class="bean'+(i<=puzzle.d?' on':'')+'"></span>';
+  const pill=$("diffPill");
+  pill.innerHTML=names[puzzle.d]+'<span class="beans">'+beans+'</span>';
+  pill.style.display="inline-flex";
+  if(mode==="endless"){
+    $("metaLine").innerHTML='∞ endless &nbsp;·&nbsp; score <b>'+endless.score.toLocaleString()+'</b> &nbsp;·&nbsp; streak <b>'+endless.streak+'</b>';
+  }else{
+    $("metaLine").innerHTML='No. <b>'+todayNum+'</b> &nbsp;·&nbsp; '+new Date().toLocaleDateString(undefined,{month:"short",day:"numeric",year:"numeric"});
+  }
+}
+function buildDeck(seed){
+  const d=PUZZLES.map((_,i)=>i);
+  const rnd=mulberry32(seed);
+  for(let i=d.length-1;i>0;i--){const j=Math.floor(rnd()*(i+1));const t=d[i];d[i]=d[j];d[j]=t;}
+  return d;
+}
+async function loadEndless(){
+  try{
+    if(window.storage){
+      const r=await window.storage.get(EKEY);
+      if(r) endless=Object.assign(endless,JSON.parse(r.value));
+    }
+  }catch(e){}
+  if(!endless.seed) endless.seed=(Math.floor(Math.random()*2147483647)||1);
+  endlessDeck=buildDeck(endless.seed);
+}
+async function saveEndless(){
+  try{ if(window.storage) await window.storage.set(EKEY,JSON.stringify(endless)); }catch(e){}
+}
+function currentEndlessPuzzle(){
+  if(endless.pos>=endlessDeck.length){
+    endless.seed=(Math.floor(Math.random()*2147483647)||1);
+    endless.pos=0;
+    endlessDeck=buildDeck(endless.seed);
+    saveEndless();
+  }
+  const p=PUZZLES[endlessDeck[endless.pos]];
+  if(p===dailyPuzzle && endlessDeck.length>1){ endless.pos++; return currentEndlessPuzzle(); }
+  return p;
+}
+let flashTimer=null;
+let lastRun={score:0,streak:0};
+function quickWin(){
+  input.disabled=true;guessBtn.disabled=true;
+  const pts=(MAX-solvedOn+1)*100;
+  const f=$("flash");
+  f.innerHTML='✓ '+puzzle.answer+' <em>+'+pts+'</em><span>score '+endless.score.toLocaleString()+' · streak '+endless.streak+'</span>';
+  f.classList.add("show");
+  clearTimeout(flashTimer);
+  flashTimer=setTimeout(()=>{
+    f.classList.remove("show");
+    if(mode==="endless") setPuzzle(currentEndlessPuzzle());
+  },1600);
+}
+function setPuzzle(p){
+  clearTimeout(flashTimer);
+  $("flash").classList.remove("show");
+  puzzle=p; MAX=puzzle.lines.length;
+  revealed=1; guesses=[]; status="play"; solvedOn=0;
+  input.disabled=false; guessBtn.disabled=false; input.value=""; hint.textContent="";
+  overlay.classList.remove("show");
+  renderVerse(); renderDots(); renderGuesses(); setMeta();
+}
+async function enterEndless(){
+  if(mode==="endless")return;
+  dailyCache={revealed,guesses:[...guesses],status,solvedOn};
+  mode="endless";
+  $("modeDaily").classList.remove("on"); $("modeEndless").classList.add("on");
+  if(!endlessDeck) await loadEndless();
+  setPuzzle(currentEndlessPuzzle());
+}
+function enterDaily(){
+  if(mode==="daily")return;
+  mode="daily";
+  clearTimeout(flashTimer);
+  $("flash").classList.remove("show");
+  $("modeEndless").classList.remove("on"); $("modeDaily").classList.add("on");
+  puzzle=dailyPuzzle; MAX=puzzle.lines.length;
+  const c=dailyCache||{revealed:1,guesses:[],status:"play",solvedOn:0};
+  revealed=c.revealed; guesses=c.guesses; status=c.status; solvedOn=c.solvedOn;
+  overlay.classList.remove("show");
+  const done=status!=="play";
+  input.disabled=done; guessBtn.disabled=done; input.value=""; hint.textContent="";
+  renderVerse(); renderDots(); renderGuesses(); setMeta();
+  if(done) finish(false);
+}
+$("modeDaily").onclick=enterDaily;
+$("modeEndless").onclick=enterEndless;
+$("nextBtn").onclick=()=>{ setPuzzle(currentEndlessPuzzle()); };
+
+async function finish(recording=true){
+  if(mode==="endless"){
+    if(recording){
+      if(status==="won"){
+        const pts=(MAX-solvedOn+1)*100;         // 500 on line 1 … 100 on line 5
+        endless.streak++;endless.wins++;endless.score+=pts;
+        endless.best=Math.max(endless.best,endless.streak);
+      }else{
+        lastRun={score:endless.score,streak:endless.streak};
+        endless.score=0;endless.streak=0;
+      }
+      endless.pos++;
+      await saveEndless();
+    }
+    setMeta();
+    if(status==="won") quickWin();     // no modal — flash and deal the next verse
+    else showModal(null);              // run over: scorecard + share
+    return;
+  }
+  const s=await loadStats();
+  if(recording){
+    // only record once per day
+    if(s.last!==todayNum){
+      s.played++;
+      if(status==="won"){s.wins++;s.streak++;s.max=Math.max(s.max,s.streak);}
+      else s.streak=0;
+      s.last=todayNum;
+      await saveStats(s);
+    }
+    await saveDay();
+  }
+  showModal(s);
+}
+
+function showModal(s){
+  const won=status==="won";
+  const a=$("answerName");
+  a.textContent=puzzle.answer;
+  a.className="answer "+(won?"win":"lose");
+  $("gridStr").textContent=buildGrid();
+  if(mode==="endless"){
+    $("resultTag").textContent = won ? "Solved in "+solvedOn : "Run over";
+    $("lblPlayed").textContent="Score";  $("sPlayed").textContent=lastRun.score.toLocaleString();
+    $("lblWin").textContent="Streak";    $("sWin").textContent=lastRun.streak;
+    $("lblStreak").textContent="Best";   $("sStreak").textContent=endless.best;
+    $("nextBtn").style.display="block";  $("nextNote").style.display="none";
+  }else{
+    $("resultTag").textContent = won ? "Solved in "+solvedOn : "The verse wins";
+    $("lblPlayed").textContent="Played"; $("sPlayed").textContent=s.played;
+    $("lblWin").textContent="Win %";     $("sWin").textContent=s.played?Math.round(s.wins/s.played*100):0;
+    $("lblStreak").textContent="Streak"; $("sStreak").textContent=s.streak;
+    $("nextBtn").style.display="none";   $("nextNote").style.display="";
+  }
+  overlay.classList.add("show");
+  input.disabled=true;guessBtn.disabled=true;
+}
+
+$("shareBtn").onclick=async()=>{
+  const txt=shareText();
+  if(navigator.share){
+    try{ await navigator.share({text:txt}); }
+    catch(e){ /* user closed the sheet — that's fine */ }
+    return;
+  }
+  try{await navigator.clipboard.writeText(txt);$("shareBtn").textContent="Copied!";}
+  catch(e){
+    const t=document.createElement("textarea");t.value=txt;document.body.appendChild(t);
+    t.select();document.execCommand("copy");t.remove();$("shareBtn").textContent="Copied!";
+  }
+  setTimeout(()=>$("shareBtn").textContent="Share the verse",1600);
+};
+
+/* countdown to next puzzle */
+function tick(){
+  const now=new Date();
+  const next=new Date(now); next.setHours(24,0,0,0);
+  const ms=next-now, h=Math.floor(ms/3.6e6), m=Math.floor(ms%3.6e6/6e4), sec=Math.floor(ms%6e4/1e3);
+  $("countdown").textContent=`${String(h).padStart(2,"0")}:${String(m).padStart(2,"0")}:${String(sec).padStart(2,"0")}`;
+}
+setInterval(tick,1000);tick();
+
+/* ---------------- boot: restore today if already played ---------------- */
+(async function init(){
+  renderVerse();renderDots();renderGuesses();
+  const day=await loadDay();
+  if(day && day.status && day.status!=="play"){
+    guesses=day.guesses||[];
+    status=day.status;solvedOn=day.solvedOn||0;
+    revealed = status==="won" ? Math.min(solvedOn,MAX) : MAX;
+    renderVerse();renderDots();renderGuesses();
+    finish(false);              // show result without re-recording
+  }
+})();
+</script>
+</body>
+</html>
